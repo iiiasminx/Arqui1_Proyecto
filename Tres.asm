@@ -74,6 +74,77 @@ closefile macro handler
     jc Error20
 endm
 
+pushtodo macro
+    push si
+    push ax
+    push bx
+    push cx
+    push dx
+endm
+
+poptodo macro
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    pop si
+endm
+
+emptystring macro array, tamanio
+
+    LOCAL Looping
+
+    pushtodo
+
+    xor si, si
+    xor cx, cx
+
+    mov cx, tamanio
+
+    Looping:
+        mov array[si], '$'
+        inc si
+        loop Looping
+    print array
+    print msg23
+    poptodo
+
+endm
+
+
+; MACROS EN PROCESO
+
+meterafile macro handler, tamanio, texto
+
+    mov ah, 42h  ; "lseek"
+    mov al, 2    ; position relative to end of file
+    mov cx, 0    ; offset MSW
+    mov dx, 0    ; offset LSW
+    int 21h
+
+    mov  ah, 40h
+    mov  bx, handler
+    mov  cx, tamanio
+    mov  dx, offset texto
+    int  21h
+
+endm ;cuando vuelvo a abrir, empieza desde el inicio
+
+readfile macro handler, array, tamanio
+
+    mov ah, 3fh
+    mov bx, handler
+    mov cx, tamanio
+    mov dx, offset array
+    int 21h
+    jc Error21
+
+    print array
+    print salto
+endm
+
+
+
 ; ----------------------------------- DATA ----------------------------------------------- ;
 ; acá defino todas las variables
 .data 
@@ -82,10 +153,11 @@ endm
     ; dd -> double word 32bits
 
     ;archivos
-    fileInit db 1400 dup(32)
     gameInit db "plis.txt", 00h
+    ;gameInit db "Dos.asm", 00h ---> abre lo que esté adentro de bin
     bufferInit db 50 dup('$')
     handlerInit dw ?
+    fileInit db 1400 dup('$')
 
     ;entrada
     bufferEntrada db 50 dup('$')
@@ -94,6 +166,9 @@ endm
     ;usuario
     anombre db 9 dup('$'), '$'
     acontrasenia db 4 dup('$'), '$'
+    ;nuevo
+    nnombre db 9 dup('$'), '$'
+    ncontrasenia db 4 dup('$'), '$'
 
     ; menu general (1)
     bienvenida db 09,'BiENVENIDO AL PROYECTO FINAL!! :D', 00h, 0Ah, '$'
@@ -129,14 +204,18 @@ endm
     ;errores
     msg19 db 09, 'error al abrir', 00h, 0Ah, '$'
     msg20 db 09, 'arror al cerrar', 00h, 0Ah, '$'
-    msg21 db 09, 'error al escribir', 00h, 0Ah, '$'
+    msg21 db 09, 'error al leer', 00h, 0Ah, '$'
 
     
-    msg23 db 09, '0', 00h, 0Ah, '$'
-    msg24 db 09, '0', 00h, 0Ah, '$'
-    msg25 db 09, '0', 00h, 0Ah, '$'
-    msg26 db 09, '0', 00h, 0Ah, '$'
-    msg27 db 09, '0', 00h, 0Ah, '$'
+    msg23 db 09, '-', 00h, 0Ah, '$'
+    msg24 db 09, 59, 00h, 0Ah, '$'
+    msg25 db 09, 'Usuario Registrado! :D', 00h, 0Ah, '$'
+
+    msg26 db 09, 'admin', 00h, 0Ah, '$'
+    msg27 db 09, '1234', 00h, 0Ah, '$'
+
+    msg28 db 09, '0', 00h, 0Ah, '$'
+    msg29 db 09, '0', 00h, 0Ah, '$'
 
 
 
@@ -180,28 +259,26 @@ endm
         print salto
         print salto
 
-        ;print msg4
+        print msg4
 
         ; aca recibo el nombre
-        ;getlinea anombre
+        getlinea anombre
 
-        ;print msg5
+        print msg5
 
         ; aca recibo la contraseña
-        ;getlinea acontrasenia
-
-        print msg22
-        ;getruta bufferInit
-
+        getlinea acontrasenia
+     
+        ;ACÁ HAGO LA VALIDACIÓN
         openfile gameInit, handlerInit
-        ;pa cerrar->closefile handlerInit
+        
+        ;acá va la magia 
+        ;readfile handlerInit, sizeof texto, texto
+        
         closefile handlerInit
+        ;borro contra y user no borro el user xq messirve pa despues
+        emptystring acontrasenia, 4
 
-        print salto
-        print msgf
-        ;print anombre
-        ;print acontrasenia
-        print msgf
         print salto
 
 
@@ -214,19 +291,36 @@ endm
         print msg4
 
         ; aca recibo el nombre
-        getlinea anombre
+        getlinea nnombre
 
         print msg5
 
         ; aca recibo la contraseña
-        getlinea acontrasenia
+        getlinea ncontrasenia
 
         print salto
-        print anombre
-        print acontrasenia
+        print nnombre
+        print ncontrasenia
 
-        print msgf
-        print msgf
+        ;Metiendo cosas al file
+        openfile gameInit, handlerInit
+
+        ; user - contra ;
+        meterafile handlerInit, 9, nnombre
+        meterafile handlerInit, 2, msg23
+        meterafile handlerInit, 4, ncontrasenia
+        meterafile handlerInit, 2, msg24
+
+        closefile handlerInit
+
+        ;borro contra y user
+
+        emptystring nnombre, 9
+        emptystring ncontrasenia, 4
+
+
+        print salto
+        print msg25
 
         jmp Menu1  
     Menu4: 
@@ -280,6 +374,7 @@ endm
 
         jmp Menu1
     Menu5:
+        ;menu del admin
         jmp Menu1
     Salir:
         mov ah, 4ch
