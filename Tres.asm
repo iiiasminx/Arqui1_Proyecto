@@ -111,9 +111,6 @@ emptystring macro array, tamanio
 
 endm
 
-
-; MACROS EN PROCESO
-
 meterafile macro handler, tamanio, texto
 
     mov ah, 42h  ; "lseek"
@@ -130,6 +127,9 @@ meterafile macro handler, tamanio, texto
 
 endm ;cuando vuelvo a abrir, empieza desde el inicio
 
+
+; MACROS EN PROCESO
+
 readfile macro handler, array, tamanio
 
     mov ah, 3fh
@@ -143,6 +143,32 @@ readfile macro handler, array, tamanio
     print salto
 endm
 
+adminpassword macro 
+
+    xor si, si; si = 0
+
+    getch
+    sub al,48
+    cmp al, 1
+    jne wrongPass
+
+    getch
+    sub al,48
+    cmp al, 2
+    jne wrongPass
+
+    getch
+    sub al,48
+    cmp al, 3
+    jne wrongPass
+
+    getch
+    sub al,48
+    cmp al, 4
+    jne wrongPass
+
+    jmp Menu5
+endm
 
 
 ; ----------------------------------- DATA ----------------------------------------------- ;
@@ -155,16 +181,17 @@ endm
     ;archivos
     gameInit db "plis.txt", 00h
     ;gameInit db "Dos.asm", 00h ---> abre lo que esté adentro de bin
-    bufferInit db 50 dup('$')
     handlerInit dw ?
-    fileInit db 1400 dup('$')
+    ;el por si acaso
+    msg26 db 'admin', '$'
+    
 
     ;entrada
     bufferEntrada db 50 dup('$')
     handlerEntrada dw ?
 
     ;usuario
-    anombre db 9 dup('$'), '$'
+    anombre db 6 dup('$'), '$'
     acontrasenia db 4 dup('$'), '$'
     ;nuevo
     nnombre db 9 dup('$'), '$'
@@ -179,10 +206,10 @@ endm
     ;menu de ingreso (2) y registro (3)
     msg4 db 09,'Ingresa tu nombre de usuario', 00h, 0Ah, '$'
     msg5 db 09,'Ingresa tu contrasenia', 00h, 0Ah, '$'
-    msg6 db 09,'Confirma tu contrasenia', 00h, 0Ah, '$'
+    ;msg6 db 09,'Confirma tu contrasenia', 00h, 0Ah, '$'
     msg17 db 09,'Usuario o contrasenia incorrectos :c', 00h, 0Ah, '$'
 
-    ;sesión de usuario
+    ;sesión de usuario y admin
     msg7 db 09,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 00h, 0Ah, '$'
     msg8 db 09,'FACULTAD DE INGENIERÍA', 00h, 0Ah, '$'
     msg9 db 09,'CIENCIAS Y SISTEMAS', 00h, 0Ah, '$'
@@ -195,8 +222,12 @@ endm
     msg15 db 09,'2) Cargar Juego', 00h, 0Ah, '$'
     msg16 db 09, '3) Salir', 00h, 0Ah, '$'
 
+    msg31 db 09,'1) Top 10 puntos', 00h, 0Ah, '$'
+    msg32 db 09,'2) Salir', 00h, 0Ah, '$'
+
     ;cargarJuego
     msg22 db 09, 'Ingresa la ruta de tu archivo', 00h, 0Ah, '$'
+    msg27 db 09, 'admin', '$'
 
     ;sesion de admin
     msg18 db 09, 'BIENVENIDO ADMINISTRADOR', 00h, 0Ah, '$'
@@ -211,14 +242,15 @@ endm
     msg24 db 09, 59, 00h, 0Ah, '$'
     msg25 db 09, 'Usuario Registrado! :D', 00h, 0Ah, '$'
 
-    msg26 db 09, 'admin', 00h, 0Ah, '$'
-    msg27 db 09, '1234', 00h, 0Ah, '$'
+    msg28 db 09, 'Tu usuario o contrasenia no coinciden :c', 00h, 0Ah, '$'
+    msg29 db 09, '1) Ingresar como usuario', 00h, 0Ah, '$'
+    msg30 db 09,'2) Ingresar como admin', 00h, 0Ah, '$'
 
-    msg28 db 09, '0', 00h, 0Ah, '$'
-    msg29 db 09, '0', 00h, 0Ah, '$'
+    
 
-
-
+    msg33 db 09,'0', 00h, 0Ah, '$'
+    msg34 db 09,'0', 00h, 0Ah, '$'
+    msg35 db 09,'0', 00h, 0Ah, '$'
 
 
     ;extras
@@ -245,12 +277,41 @@ endm
         sub al,48
     
         cmp al, 1
-        je Menu2
+        je Menu6
         cmp al, 2
         je Menu3
         cmp al, 3  
         je Salir
 
+
+        jmp Menu1
+    Menu6:
+        print salto
+        print msg29 ;ingreso como usr
+        print msg30 ;ingreso como admin
+
+        getch
+
+        print salto
+
+        sub al,48
+    
+        cmp al, 1
+        je Menu2
+        cmp al, 2
+        je Menu7
+
+        jmp Menu6
+    Menu7:
+        ; si ingreso como admin
+        print salto
+        print msg4
+        print msg27
+        print salto
+        print msg5
+
+        ; aca recibo el 1234
+        adminpassword
 
         jmp Menu1
 
@@ -273,9 +334,10 @@ endm
         openfile gameInit, handlerInit
         
         ;acá va la magia 
-        ;readfile handlerInit, sizeof texto, texto
         
-        closefile handlerInit
+        
+
+
         ;borro contra y user no borro el user xq messirve pa despues
         emptystring acontrasenia, 4
 
@@ -306,7 +368,8 @@ endm
         openfile gameInit, handlerInit
 
         ; user - contra ;
-        meterafile handlerInit, 9, nnombre
+        meterafile handlerInit, 5, msg26
+        meterafile handlerInit, 6, nnombre
         meterafile handlerInit, 2, msg23
         meterafile handlerInit, 4, ncontrasenia
         meterafile handlerInit, 2, msg24
@@ -374,12 +437,39 @@ endm
 
         jmp Menu1
     Menu5:
-        ;menu del admin
+        print salto
+        print salto
+
+        print msg7
+        print msg8
+        print msg9
+        print msg10
+        print msg11
+        print msg12
+        print msg13
+
+        print salto
+
+        print msg31
+        print msg32
+
+        getch
+        print salto
+
+        sub al,48
+    
+        cmp al, 1
+        je Ordenamiento
+        cmp al, 2
+        je Salir
+
         jmp Menu1
+    Ordenamiento: 
+        jmp Menu5
     Salir:
         mov ah, 4ch
         int 21h
-
+    ; COSITOS EXTRAS    
     Error19:
         print msg19
         jmp Menu1
@@ -388,6 +478,12 @@ endm
         jmp Menu1
     Error21:
         print msg21
+        jmp Menu1
+    wrongPass:
+        print salto
+        print msg28
+        print salto
+        print salto
         jmp Menu1
     main endp
 end
