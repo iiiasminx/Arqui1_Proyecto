@@ -127,22 +127,6 @@ meterafile macro handler, tamanio, texto
 
 endm ;cuando vuelvo a abrir, empieza desde el inicio
 
-
-; MACROS EN PROCESO
-
-readfile macro handler, array, tamanio
-
-    mov ah, 3fh
-    mov bx, handler
-    mov cx, tamanio
-    mov dx, offset array
-    int 21h
-    jc Error21
-
-    print array
-    print salto
-endm
-
 adminpassword macro 
 
     xor si, si; si = 0
@@ -170,6 +154,130 @@ adminpassword macro
     jmp Menu5
 endm
 
+readfile macro handler, array, tamanio
+
+    mov ah, 3fh
+    mov bx, handler
+    mov cx, tamanio
+
+    mov dx, offset array
+    int 21h
+    jc Error21
+
+    print array
+    print salto
+endm
+
+; MACROS EN PROCESO
+
+comparestrings macro txt1, txt2
+
+    LOCAL Noiwales, Iwales, Fin
+
+    push bx
+    push BL
+    push bh
+
+    MOV BX,00
+    MOV BL,txt1
+    MOV BH,txt2
+
+    CMP BL,BH
+    jne Noiwales
+
+    Noiwales: 
+        mov ax, 0
+        jmp Fin
+
+    Iwales:
+        mov ax, 1
+        jmp Fin
+    Fin:
+        pop bx
+        pop BL
+        pop bh
+
+
+
+endm
+
+findUser macro userEntrado, contraseniaEntrada, texto
+
+    LOCAL Noiwales, Iwales, Comparador, Nops, Sip
+
+    xor si, si
+    xor di, di
+
+    ;mov al, userEntrado[di]
+    ;cmp al, 'a'
+    ;je Iwales ;--> esta cosa funciona
+
+    ;mov ah, texto[di]
+    ;cmp ah, 'a'
+    ;je Iwales ;--> esta cosa funciona
+
+    Comparador:
+        mov al, userEntrado[si]
+        mov ah, texto[di]
+
+        cmp si, 6
+        je Iwales
+
+        cmp al, 0
+        je Noiwales
+        cmp ah, 0
+        je Noiwales
+
+        cmp al, '$'
+        je Noiwales
+        cmp ah, '$'
+        je Noiwales
+
+        cmp al, ah
+        je Sip
+
+        jmp Nops
+
+        Nops: 
+            inc di
+            print msgf2
+            jmp Comparador
+
+        Sip:
+            inc si
+            inc di
+
+            print msgf
+
+            jmp Comparador
+    
+    Comparador2:
+
+    Noiwales: ;si no coincide con nada el cosito
+        print salto
+        print msg28
+        print salto
+
+        jmp Menu1
+    Iwales: 
+        jmp Menu4
+
+endm
+
+insertLevels  macro texto
+
+    xor si, si
+    xor di, di
+
+
+
+endm
+
+clearscreeen macro 
+endm
+
+
+
 
 ; ----------------------------------- DATA ----------------------------------------------- ;
 ; acá defino todas las variables
@@ -182,20 +290,28 @@ endm
     gameInit db "plis.txt", 00h
     ;gameInit db "Dos.asm", 00h ---> abre lo que esté adentro de bin
     handlerInit dw ?
+    userInit db 1500 dup('$')
     ;el por si acaso
     msg26 db 'admin', '$'
-    
 
     ;entrada
-    bufferEntrada db 50 dup('$')
+    bufferEntrada db 50 dup(00h)
     handlerEntrada dw ?
+    fileEntrada db 1500 dup('$')
+    entradaInit db "prueba.ply", 00h ;FUNCIONA!!
+    ;entradaInit db "prueba.play", 00h
+
+    ;settings de niveles
+    strlevel1 db '$$$$$$$', '$'
+    strlevel2 db '$$$$$$$', '$'
+    strlevel3 db '$$$$$$$', '$'
 
     ;usuario
-    anombre db 6 dup('$'), '$'
-    acontrasenia db 4 dup('$'), '$'
+    anombre db 6 dup(32);, '$'
+    acontrasenia db 4 dup('32');, '$'
     ;nuevo
-    nnombre db 9 dup('$'), '$'
-    ncontrasenia db 4 dup('$'), '$'
+    nnombre db 6 dup(32);, '$'
+    ncontrasenia db 4 dup(32);, '$'
 
     ; menu general (1)
     bienvenida db 09,'BiENVENIDO AL PROYECTO FINAL!! :D', 00h, 0Ah, '$'
@@ -255,7 +371,9 @@ endm
 
     ;extras
     salto db 00h, 0Ah, '$'
-    msgf db 'fin :3', 00h, 0Ah, '$'
+    msgf db ' ! ', '$' ;fin :3
+    msgf2 db ' ? ', '$'; fin :c
+    msgPrueba db "hola-1234-0;"
 
 
 ; ----------------------------------- CODE ----------------------------------------------- ;
@@ -331,18 +449,22 @@ endm
         getlinea acontrasenia
      
         ;ACÁ HAGO LA VALIDACIÓN
-        openfile gameInit, handlerInit
-        
         ;acá va la magia 
-        
-        
+        openfile gameInit, handlerInit
+        ; leyendo
+        readfile handlerInit, userInit, sizeof userInit
+        ; todo está en userinit
+        findUser anombre, acontrasenia, userInit
 
+        pushtodo
+        closefile handlerInit 
+        poptodo
 
-        ;borro contra y user no borro el user xq messirve pa despues
-        emptystring acontrasenia, 4
+        cmp ax, 1 ;si me regresa que comparó todo chido
+        je Menu4
 
-        print salto
-
+        cmp ax, 2
+        je Menu1
 
         jmp Menu4
     Menu3: 
@@ -412,24 +534,31 @@ endm
         sub al,48
     
         cmp al, 1
-        ;inicio juego
+        je InicioJuego
 
         cmp al, 2
         je CargarJuego
 
-
         cmp al, 3  
         je Salir
 
-        jmp Menu1
+        jmp Menu4
     CargarJuego:
 
         print msg22
         getruta bufferEntrada
-        ;print bufferEntrada
-        print salto
 
-        ;openfile bufferEntrada, handlerEntrada
+
+        print salto
+        openfile entradaInit, handlerEntrada
+        ; leyendo
+        readfile handlerEntrada, fileEntrada, 1500
+
+        ;acá es donde separo las cosas por niveles y eso
+
+        ;cerrando
+        closefile handlerEntrada
+        print salto
 
 
         jmp Menu4
