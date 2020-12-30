@@ -11,6 +11,15 @@ print macro cadena
     int 21h    
 endm
 
+printNum macro num
+
+    mov dl,num 
+	;add dl,48		; convertir de decimal a ascii
+	mov ah,02		;02 es como 09 pero para numeros
+	int 21h
+
+endm 
+
 getch macro 
     mov ah, 01h
     int 21h
@@ -49,7 +58,7 @@ getruta macro arreglo
 
     FinOT:
         mov al, 00h
-        mov arreglo[si], ah
+        mov arreglo[si], al
 
 endm
 
@@ -168,7 +177,352 @@ readfile macro handler, array, tamanio
     print salto
 endm
 
+findUser macro userEntrado, contraseniaEntrada, texto
+
+    LOCAL Noiwales, Iwales, Comparador, Nops, Sip
+
+    ;PARA VER QUE SI TODO, NO CAMBIO EL DI, Y SI LLEGA A UN ; NEL
+
+    xor si, si
+    xor di, di
+
+    ;mov al, userEntrado[di]
+    ;cmp al, 'a'
+    ;je Iwales ;--> esta cosa funciona
+
+    ;mov ah, texto[di]
+    ;cmp ah, 'a'
+    ;je Iwales ;--> esta cosa funciona
+
+    Comparador:
+        mov al, userEntrado[si]
+        mov ah, texto[di]
+
+        cmp si, 6
+        je Comparador2
+
+        cmp al, 0
+        je Noiwales
+        cmp ah, 0
+        je Noiwales
+
+        cmp al, '$'
+        je Noiwales
+        cmp ah, '$'
+        je Noiwales
+
+        cmp al, ah
+        je Sip
+
+        jmp Nops
+
+        Nops: 
+            inc di
+            print msgf2
+            jmp Comparador
+
+        Sip:
+            inc si
+            inc di
+
+            print msgf
+
+            jmp Comparador
+    
+    Comparador2:
+        xor si, si
+        xor di, di
+        xor al, al
+        xor ah, ah
+
+        Magia:
+            mov al, contraseniaEntrada[si]
+            mov ah, texto[di]
+
+            cmp si, 3
+            je Iwales
+
+            cmp al, 0
+            je Noiwales
+            cmp ah, 0
+            je Noiwales
+
+            cmp al, '$'
+            je Noiwales
+            cmp ah, '$'
+            je Noiwales
+
+            cmp al, ah
+            je Sip2
+
+            jmp Nops2
+
+            Nops2: 
+                inc di
+                print msgf2
+                jmp Magia
+
+            Sip2:
+                inc si
+                inc di
+
+                print msgf
+
+                jmp Magia
+
+
+    
+    Noiwales: ;si no coincide con nada el cosito
+        print salto
+        print msg28
+        print salto
+
+        jmp Menu1
+    Iwales: 
+        jmp Menu4
+
+endm
+
 ; MACROS EN PROCESO
+
+
+insertLevels  macro texto
+
+    xor si, si
+    xor di, di
+    xor al, al
+    xor ah, ah
+
+    ;mov al, userEntrado[di]
+    ;cmp al, 'a'
+    ;je Iwales ;--> esta cosa funciona
+
+    ;mov ah, texto[di]
+    ;cmp ah, 'a'
+    ;je Iwales ;--> esta cosa funciona
+
+    nvl0:
+
+        ;leo hasta la coma
+        mov al, texto[si]
+        cmp al, 44 ;\,
+        je nvl1
+
+        inc si
+        jmp nvl0 
+    nvl1:   ; acá wacho que nivel es, solo 3 opciones
+        inc si        
+        mov al, texto[si]
+
+        cmp al, 49 ;1
+        je level1
+
+        cmp al, 50 ;2
+        je level2
+
+        cmp al, 51 ;3
+        je level3
+
+        jmp oopsie    
+    level1:
+        inc si   ; estoy en una coma
+
+        tnivel1: ;99, 9, 29
+            inc si     
+            mov al, texto[si] ;9,9,2
+
+            mov timen1, al 
+
+            inc si     
+            mov al, texto[si] ;9, , ,9
+
+            cmp al, 44 ;  ,
+            je  tn1
+
+            jmp tn2
+
+            tn1:
+                jmp tobstaculos1
+
+            tn2:
+
+                mov ah, timen1
+                juntarNumeros ah, al, timen1
+
+                jmp tobstaculos1            
+        tobstaculos1:
+            inc si     
+            mov al, texto[si] ;9,9,2
+
+            mov tobstac1, al 
+
+            inc si     
+            mov al, texto[si] ;9, , ,9
+
+            cmp al, 44 ;  ,
+            je  tob1
+
+            jmp tob2
+
+            tob1:
+                jmp tpremio1
+            tob2:
+
+                mov ah, tobstac1
+                juntarNumeros ah, al, tobstac1
+
+                jmp tpremio1    
+        tpremio1:
+            inc si     
+            mov al, texto[si] ;9,9,2
+
+            mov tprice1, al 
+
+            inc si     
+            mov al, texto[si] ;9, , ,9
+
+            cmp al, 44 ;  ,
+            je  tpr1
+
+            jmp tpr2
+
+            tpr1:
+                jmp pobstaculos1
+            tpr2:
+
+                mov ah, tprice1
+                juntarNumeros ah, al, tprice1
+
+                jmp pobstaculos1  
+        pobstaculos1:
+            inc si     
+            mov al, texto[si] ;9,9,2
+
+            mov pobstac1, al 
+
+            inc si     
+            mov al, texto[si] ;9, , ,9
+
+            cmp al, 44 ;  ,
+            je  pob1
+
+            jmp tpr2
+
+            pob1:
+                jmp ppremios1
+            pob2:
+
+                mov ah, pobstac1
+                juntarNumeros ah, al, pobstac1
+
+                jmp ppremios1 
+        ppremios1:
+            inc si     
+            mov al, texto[si] ;9,9,2
+
+            mov pprice1, al 
+
+            inc si     
+            mov al, texto[si] ;9, , ,9
+
+            cmp al, 44 ;  ,
+            je  ppr1
+
+            cmp al, 59 ;  ,
+            je  ppr1
+
+            jmp ppr2
+
+            ppr1:
+                print msgf
+                print salto
+                inc si
+                jmp nvl0
+            ppr2:
+
+                mov ah, pprice1
+                juntarNumeros ah, al, pprice1
+
+                print msgf
+                print salto
+                inc si
+                jmp nvl0 
+    level2:
+        print msgf
+        print msgf
+        print tab
+
+        inc si        
+        mov al, texto[si]
+        cmp al, 59 ;\;
+        je nvl0
+
+        jmp level2
+    level3:
+        print msgf
+        print msgf
+        print msgf
+        print tab
+
+        inc si        
+        mov al, texto[si]
+        cmp al, 59 ;\;
+        je finn
+        cmp al, 0 ;\;
+        je finn
+        cmp al, '$' ;\;
+        je finn
+
+
+        jmp level3         
+    oopsie:
+        print msg21
+        jmp Menu4
+    finn:
+        ;placeholder because yikes
+        print msgf
+        print msgf2
+        print salto
+
+endm
+
+juntarNumeros macro decenas, unidades, destino
+    ;
+
+endm
+
+clearscreeennormal macro 
+    mov cx, 30
+    clearnormal:
+        print salto
+        loop clearnormal
+
+endm
+
+; MACROS DEL MODO VIDEO
+
+moverCursor macro fila, columna
+    mov ah, 02h
+    mov dh, fila
+    mov dl, columna
+    int 10h
+endm 
+
+iniciarModoVideo macro
+
+    ; modo 13h
+    ;320 x 200x 256 colores
+    ; c/ pixel un byte. 00h to ffh
+
+    mov ah, 00h
+    mov al, 18
+    int 10h
+
+
+endm
+
+
+; INSERVIBLES POR EL MOMENTO
 
 comparestrings macro txt1, txt2
 
@@ -201,84 +555,6 @@ comparestrings macro txt1, txt2
 
 endm
 
-findUser macro userEntrado, contraseniaEntrada, texto
-
-    LOCAL Noiwales, Iwales, Comparador, Nops, Sip
-
-    xor si, si
-    xor di, di
-
-    ;mov al, userEntrado[di]
-    ;cmp al, 'a'
-    ;je Iwales ;--> esta cosa funciona
-
-    ;mov ah, texto[di]
-    ;cmp ah, 'a'
-    ;je Iwales ;--> esta cosa funciona
-
-    Comparador:
-        mov al, userEntrado[si]
-        mov ah, texto[di]
-
-        cmp si, 6
-        je Iwales
-
-        cmp al, 0
-        je Noiwales
-        cmp ah, 0
-        je Noiwales
-
-        cmp al, '$'
-        je Noiwales
-        cmp ah, '$'
-        je Noiwales
-
-        cmp al, ah
-        je Sip
-
-        jmp Nops
-
-        Nops: 
-            inc di
-            print msgf2
-            jmp Comparador
-
-        Sip:
-            inc si
-            inc di
-
-            print msgf
-
-            jmp Comparador
-    
-    Comparador2:
-
-    Noiwales: ;si no coincide con nada el cosito
-        print salto
-        print msg28
-        print salto
-
-        jmp Menu1
-    Iwales: 
-        jmp Menu4
-
-endm
-
-insertLevels  macro texto
-
-    xor si, si
-    xor di, di
-
-
-
-endm
-
-clearscreeen macro 
-endm
-
-
-
-
 ; ----------------------------------- DATA ----------------------------------------------- ;
 ; acá defino todas las variables
 .data 
@@ -302,9 +578,27 @@ endm
     ;entradaInit db "prueba.play", 00h
 
     ;settings de niveles
-    strlevel1 db '$$$$$$$', '$'
-    strlevel2 db '$$$$$$$', '$'
-    strlevel3 db '$$$$$$$', '$'
+    ; db 1-> 256, -128->127
+
+    naux db 0
+
+    timen1 db 0
+    tobstac1 db 0
+    tprice1 db 0
+    pobstac1 db 0
+    pprice1 db 0; 2 dup('$')
+
+    timen2 db 0
+    tobstac2 db 0
+    tprice2 db 0
+    pobstac2 db 0
+    pprice2 db 0;
+
+    timen3 db 0
+    tobstac3 db 0
+    tprice3 db 0
+    pobstac3 db 0
+    pprice3 db 0;
 
     ;usuario
     anombre db 6 dup(32);, '$'
@@ -371,6 +665,7 @@ endm
 
     ;extras
     salto db 00h, 0Ah, '$'
+    tab db 09, '$'
     msgf db ' ! ', '$' ;fin :3
     msgf2 db ' ? ', '$'; fin :c
     msgPrueba db "hola-1234-0;"
@@ -550,11 +845,14 @@ endm
 
 
         print salto
-        openfile entradaInit, handlerEntrada
+        ;openfile entradaInit, handlerEntrada
+        openfile bufferEntrada, handlerEntrada
         ; leyendo
-        readfile handlerEntrada, fileEntrada, 1500
+        readfile handlerEntrada, fileEntrada, sizeof fileEntrada
 
         ;acá es donde separo las cosas por niveles y eso
+        insertLevels fileEntrada
+
 
         ;cerrando
         closefile handlerEntrada
@@ -563,6 +861,8 @@ endm
 
         jmp Menu4
     InicioJuego:
+
+        iniciarModoVideo
 
         jmp Menu1
     Menu5:
