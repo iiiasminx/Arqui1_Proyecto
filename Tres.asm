@@ -2,6 +2,8 @@
 .stack 100h
 
 ; ----------------------------------- MACROS --------------------------------------------- ;
+
+;   GENERALES ----------------------------------
 print macro cadena
     ; nombre macro param, param2
     mov ah, 09h
@@ -62,43 +64,6 @@ getruta macro arreglo
 
 endm
 
-openfile macro buffer, handler
-
-    xor ax, ax
-    xor dx, dx
-
-    mov ah, 3dh
-    mov al, 02h
-    mov dx, offset buffer
-    int 21h
-    jc Error19
-    mov handler, ax
-    
-endm
-
-closefile macro handler
-    mov  ah, 3eh
-    mov  bx, handler
-    int  21h      
-    jc Error20
-endm
-
-pushtodo macro
-    push si
-    push ax
-    push bx
-    push cx
-    push dx
-endm
-
-poptodo macro
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-    pop si
-endm
-
 emptystring macro array, tamanio
 
     LOCAL Looping
@@ -120,6 +85,66 @@ emptystring macro array, tamanio
 
 endm
 
+clearscreeennormal macro 
+    mov cx, 30
+    clearnormal:
+        print salto
+        loop clearnormal
+
+endm
+
+getnumeros macro arreglo
+
+    LOCAL NuevoChar, FinOT, Again, Nops
+
+    Again: 
+        xor si, si; si = 0
+        NuevoChar:
+            getch
+            cmp al, 0dh
+            je FinOT ; si es enter, termino de una
+
+            cmp al, 48
+            jb Nops
+
+            cmp al, 57
+            ja Nops
+
+            mov arreglo[si], al
+            inc si; si++
+            jmp NuevoChar        
+        Nops:
+            print salto
+            print msg33
+            jmp Again
+
+        FinOT:
+            mov al, 24h
+            mov arreglo[si], ah
+endm
+
+;   FILES ----------------------------------
+openfile macro buffer, handler
+
+    xor ax, ax
+    xor dx, dx
+
+    mov ah, 3dh
+    mov al, 02h
+    mov dx, offset buffer
+    int 21h
+    jc Error19
+    mov handler, ax
+    
+endm
+
+closefile macro handler
+    mov  ah, 3eh
+    mov  bx, handler
+    int  21h      
+    jc Error20
+endm
+
 meterafile macro handler, tamanio, texto
 
     mov ah, 42h  ; "lseek"
@@ -135,6 +160,39 @@ meterafile macro handler, tamanio, texto
     int  21h
 
 endm ;cuando vuelvo a abrir, empieza desde el inicio
+
+readfile macro handler, array, tamanio
+
+    mov ah, 3fh
+    mov bx, handler
+    mov cx, tamanio
+
+    mov dx, offset array
+    int 21h
+    jc Error21
+
+    ;print array
+    ;print salto
+endm
+
+;   PILA ----------------------------------
+pushtodo macro
+    push si
+    push ax
+    push bx
+    push cx
+    push dx
+endm
+
+poptodo macro
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    pop si
+endm
+
+; VALIDACIONES DE USUARIO ----------------------------------
 
 adminpassword macro 
 
@@ -161,20 +219,6 @@ adminpassword macro
     jne wrongPass
 
     jmp Menu5
-endm
-
-readfile macro handler, array, tamanio
-
-    mov ah, 3fh
-    mov bx, handler
-    mov cx, tamanio
-
-    mov dx, offset array
-    int 21h
-    jc Error21
-
-    print array
-    print salto
 endm
 
 findUser macro userEntrado, contraseniaEntrada, texto
@@ -217,15 +261,16 @@ findUser macro userEntrado, contraseniaEntrada, texto
         jmp Nops
 
         Nops: 
+            xor si, si
             inc di
-            print msgf2
+            ;print msgf2
             jmp Comparador
 
         Sip:
             inc si
             inc di
 
-            print msgf
+            ;print msgf
 
             jmp Comparador
     
@@ -239,7 +284,7 @@ findUser macro userEntrado, contraseniaEntrada, texto
             mov al, contraseniaEntrada[si]
             mov ah, texto[di]
 
-            cmp si, 3
+            cmp si, 4
             je Iwales
 
             cmp al, 0
@@ -258,6 +303,7 @@ findUser macro userEntrado, contraseniaEntrada, texto
             jmp Nops2
 
             Nops2: 
+                xor si, si
                 inc di
                 print msgf2
                 jmp Magia
@@ -281,9 +327,65 @@ findUser macro userEntrado, contraseniaEntrada, texto
     Iwales: 
         jmp Menu4
 
+endm 
+
+yausuario macro userEntrado, texto
+
+    LOCAL Noiwales, Iwales, ComparadorUS, NopsUS, SipUS, FinUS
+
+    xor si, si
+    xor di, di
+
+    ComparadorUS:
+        mov al, userEntrado[si]
+        mov ah, texto[di]
+
+        cmp si, 6
+        je IwalesUS
+
+        cmp al, 0
+        je NoiwalesUS
+        cmp ah, 0
+        je NoiwalesUS
+
+        cmp al, '$'
+        je NoiwalesUS
+        cmp ah, '$'
+        je NoiwalesUS
+
+        cmp al, ah
+        je SipUS
+
+        jmp NopsUS
+
+        NopsUS: 
+            inc di
+            ;print msgf2
+            jmp ComparadorUS
+
+        SipUS:
+            inc si
+            inc di
+
+            ;print msgf
+
+            jmp ComparadorUS
+
+    
+    NoiwalesUS: ;si no coincide con nada el cosito
+        jmp FinUS
+    IwalesUS: 
+        print salto
+        print msg34
+        print salto
+        jmp Menu3
+
+    FinUS:
+        ;holaa
+
 endm
 
-; MACROS EN PROCESO
+;   NIVELES ----------------------------------
 
 verniveles macro    
 
@@ -299,7 +401,6 @@ verniveles macro
     print salto 
     print salto
 endm
-
 
 insertLevels  macro texto
 
@@ -364,7 +465,7 @@ insertLevels  macro texto
                 xor ah, ah
                 jmp tobstaculos1
 
-            tn2: 
+            tn2:  
 
                 xor cl, cl
                 xor bl, bl
@@ -388,8 +489,9 @@ insertLevels  macro texto
                 chi:
                     print msgf2
                     print msgf2
+                    print salto
                     inc si
-                    jmp tobstaculos1       
+                    jmp tobstaculos1 
         tobstaculos1:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -410,13 +512,21 @@ insertLevels  macro texto
                 jmp tpremio1
             tob2:
 
-                mov ah, tobstac1
+                xor cl, cl
+                xor bl, bl
+
+                mov cl, tobstac1 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[tobstac1], bl
 
                 inc si
-                xor al, al
-                xor ah, ah
-
-                jmp tpremio1    
+                jmp tpremio1  
         tpremio1:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -435,12 +545,20 @@ insertLevels  macro texto
                 jmp pobstaculos1
             tpr2:
 
-                mov ah, tprice1
+                xor cl, cl
+                xor bl, bl
+
+                mov cl, tprice1 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[tprice1], bl
 
                 inc si
-                xor al, al
-                xor ah, ah
-
                 jmp pobstaculos1  
         pobstaculos1:
             inc si     
@@ -460,11 +578,20 @@ insertLevels  macro texto
                 jmp ppremios1
             pob2:
 
-                mov ah, pobstac1
+                xor cl, cl
+                xor bl, bl
+
+                mov cl, pobstac1 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[pobstac1], bl
 
                 inc si
-                xor al, al
-                xor ah, ah
 
                 jmp ppremios1 
         ppremios1:
@@ -490,12 +617,23 @@ insertLevels  macro texto
                 inc si
                 jmp nvl0
             ppr2:
+                xor cl, cl
+                xor bl, bl
 
-                mov ah, pprice1
+                mov cl, pprice1 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[pprice1], bl
+                inc si
 
                 print msgf
                 print salto
-                inc si
+
                 jmp nvl0 
     level2:
         inc si   ; estoy en una coma
@@ -546,6 +684,7 @@ insertLevels  macro texto
                 chi2:
                     print msgf2
                     print msgf2
+                    print tab
                     inc si
                     jmp tobstaculos2      
         tobstaculos2:
@@ -568,13 +707,31 @@ insertLevels  macro texto
                 jmp tpremio2
             tob22:
 
-                mov ah, tobstac2
+                xor cl, cl
+                xor bl, bl
+
+                mov cl, tobstac2 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[tobstac2], bl
+
+                cmp tobstac2, 58
+                je chi3
 
                 inc si
-                xor al, al
-                xor ah, ah
+                jmp tpremio2
 
-                jmp tpremio2    
+                chi3:
+                    print msgf2
+                    print msgf2
+                    print tab
+                    inc si
+                    jmp tpremio2   
         tpremio2:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -593,13 +750,31 @@ insertLevels  macro texto
                 jmp pobstaculos2
             tpr22:
 
-                mov ah, tprice2
+                xor cl, cl
+                xor bl, bl
+
+                mov cl, tprice2 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[tprice2], bl
+
+                cmp tprice2, 47
+                je chi4
 
                 inc si
-                xor al, al
-                xor ah, ah
+                jmp pobstaculos2
 
-                jmp pobstaculos2 
+                chi4:
+                    print msgf2
+                    print msgf2
+                    print tab
+                    inc si
+                    jmp pobstaculos2
         pobstaculos2:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -618,13 +793,31 @@ insertLevels  macro texto
                 jmp ppremios2
             pob22:
 
-                mov ah, pobstac2
+                xor cl, cl
+                xor bl, bl
+
+                mov cl, pobstac2 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[pobstac2], bl
+
+                cmp pobstac2, 25
+                je chi5
 
                 inc si
-                xor al, al
-                xor ah, ah
+                jmp ppremios2
 
-                jmp ppremios2 
+                chi5:
+                    print msgf2
+                    print msgf2
+                    print tab
+                    inc si
+                    jmp ppremios2
         ppremios2:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -648,13 +841,34 @@ insertLevels  macro texto
                 inc si
                 jmp nvl0
             ppr22:
+                xor cl, cl
+                xor bl, bl
 
-                mov ah, pprice2
+                mov cl, pprice2 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[pprice2], bl
+
+                cmp pprice2, 36
+                je chi6
 
                 print msgf
                 print salto
                 inc si
-                jmp nvl0 
+                jmp nvl0
+
+                chi6:
+                    print msgf2
+                    print msgf2
+                    print tab
+                    inc si
+                    jmp nvl0
+                 
     level3:
         inc si   ; estoy en una coma
 
@@ -695,17 +909,8 @@ insertLevels  macro texto
                 add bl, al
                 mov byte ptr[timen3], bl
 
-                cmp timen3, 55
-                je chi3
-
                 inc si
-                jmp tobstaculos3
-
-                chi3:
-                    print msgf2
-                    print msgf2
-                    inc si
-                    jmp tobstaculos3       
+                jmp tobstaculos3  
         tobstaculos3:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -726,13 +931,21 @@ insertLevels  macro texto
                 jmp tpremio3
             tob32:
 
-                mov ah, tobstac3
+                xor cl, cl
+                xor bl, bl
+
+                mov cl, tobstac3 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[tobstac3], bl
 
                 inc si
-                xor al, al
-                xor ah, ah
-
-                jmp tpremio3    
+                jmp tpremio3   
         tpremio3:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -751,13 +964,21 @@ insertLevels  macro texto
                 jmp pobstaculos3
             tpr32:
 
-                mov ah, tprice3
+                xor cl, cl
+                xor bl, bl
+
+                mov cl, tprice3 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[tprice3], bl
 
                 inc si
-                xor al, al
-                xor ah, ah
-
-                jmp pobstaculos3  
+                jmp pobstaculos3 
         pobstaculos3:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -775,14 +996,21 @@ insertLevels  macro texto
             pob31:
                 jmp ppremios3
             pob32:
+                xor cl, cl
+                xor bl, bl
 
-                mov ah, pobstac3
+                mov cl, pobstac3 ; coso de las decenas
+                sub cl, 48  
+
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[pobstac3], bl
 
                 inc si
-                xor al, al
-                xor ah, ah
-
-                jmp ppremios3 
+                jmp ppremios3
         ppremios3:
             inc si     
             mov al, texto[si] ;9,9,2
@@ -806,11 +1034,19 @@ insertLevels  macro texto
                 inc si
                 jmp finn
             ppr32:
+                xor cl, cl
+                xor bl, bl
 
-                mov ah, pprice3
+                mov cl, pprice3 ; coso de las decenas
+                sub cl, 48  
 
-                print msgf
-                print salto
+                juntarnumeros     
+
+                sub al, 48      
+
+                add bl, al
+                mov byte ptr[pprice3], bl
+
                 inc si
                 jmp finn      
     oopsie:
@@ -891,14 +1127,320 @@ juntarnumeros macro
         ; holaaa
 endm
 
+juntarnumerosCentena macro
 
-clearscreeennormal macro 
-    mov cx, 30
-    clearnormal:
-        print salto
-        loop clearnormal
+    LOCAL uno, dos, tres, cuatro, cinco, seis, siete, ocho, nueve, finjnc
+
+    cmp cl, 1
+    je uno
+    cmp cl, 2
+    je dos
+    cmp cl, 3
+    je tres
+    cmp cl, 4
+    je cuatro
+    cmp cl, 5
+    je cinco
+    cmp cl, 6
+    je seis
+    cmp cl, 7
+    je siete
+    cmp cl, 8
+    je ocho
+    cmp cl, 9
+    je nueve
+
+    uno:
+        ;print msgf 
+        mov dx, 100
+        jmp finjnc
+    dos:
+        mov dx, 200
+        ;prin msgf2 
+        jmp finjnc
+    tres:
+        ;print msgf 
+        mov dx, 300
+        jmp finjnc
+    cuatro:
+        mov dx, 400
+        ;print msgf2
+        jmp finjnc
+    cinco:
+        ;print msgf 
+        mov dx, 500
+        jmp finjnc
+    seis:
+        mov dx, 600
+        ;print msgf2
+        jmp finjnc
+    siete:
+        mov dx, 700
+        ;print msgf 
+        jmp finjnc
+    ocho:
+        mov dx, 800
+        ;print msgf2
+        jmp finjnc
+    nueve:
+        mov dx, 900
+        ;print msgf 
+        jmp finjnc
+
+    finjnc:
+        ; holaaa
+endm
+
+; MACROS EN PROCESO
+
+meteraTopsIndi macro texto, array
+
+    LOCAL fini, finii, mainmti
+
+    mainmti:
+        mov ah, texto[di]
+
+        cmp ah, 0
+        je fini
+        cmp ah, '$'
+        je fini
+
+        mov array[si], ah
+        inc di
+        inc si
+
+        cmp ah, 59
+        je finii
+
+        jmp mainmti
+    fini:
+        mov ax, 51        
+    finii:
+        xor si, si
 
 endm
+
+meteraTops macro texto
+
+    LOCAl Finmet, Finmet2
+   
+    xor di, di
+    xor si, si
+    xor ah, ah
+    xor ax, ax
+
+    meteraTopsIndi texto, pts1
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts2
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts3
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts4
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts5
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts6
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts7
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts8
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts9
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts10
+    cmp ax, 51
+    je Finmet 
+
+    ; si hay más cosos todavía
+    ;mov ah, texto[di]
+    ;cmp ah, 0
+    ;je Finmet
+    ;cmp ah, '$'
+    ;je Finmet
+    ; si si siguen
+
+    Finmet:
+
+        getPuntos pts1
+        mov fpts1, cx
+        getPuntos pts2
+        mov fpts2, cx
+        getPuntos pts3
+        mov fpts3, cx
+        getPuntos pts4
+        mov fpts4, cx
+        getPuntos pts5
+        mov fpts5, cx
+        getPuntos pts6
+        mov fpts6, cx
+        getPuntos pts7
+        mov fpts7, cx
+        getPuntos pts8
+        mov fpts8, cx
+        getPuntos pts9
+        mov fpts9, cx
+        getPuntos pts10
+        mov fpts10, cx
+
+        cmp fpts5, 350
+        je wenas
+
+        jmp Finmet2
+
+        wenas:
+            print msg1
+
+
+    Finmet2:
+        ;print msgf2
+        ;print msgf2
+        ;print salto
+        ;print pts1
+        ;print tab
+        ;print pts2
+        ;print tab
+        ;print pts3
+        ;print tab
+        ;print pts4
+        ;print tab
+        ;print pts5
+        ;print tab
+        ;print pts6
+        ;print tab
+        ;print pts7
+        ;print tab
+        ;print pts8
+        ;print tab
+        ;print pts9
+        ;print tab
+        ;print pts10
+endm
+
+getPuntos macro array
+    LOCAL maingp, fingpi, fingpii, fingpiii, fingpiv, fingpv, fingpvi, found     ;EL RESULTADO FINAL ESTÁ EN CX
+    pushtodo
+
+    xor di, di
+    xor al, al
+    xor bl, bl
+    xor cl, cl
+    xor cx, cx
+
+    maingp:
+        mov al, array[di]
+        inc di  ; si es, de una va metido en el numero
+
+        cmp al, 0
+        je fingpv
+
+        cmp al, '$'
+        je fingpv
+
+        cmp al, 43
+        je found
+
+        jmp maingp
+    found:  ; 517, 35, 2;
+        xor al, al
+
+        mov cl, array[di] ; 5, 3, 2
+
+        inc di
+        mov al, array[di] ; 1, 5, ;
+
+        cmp al, 59
+        je fingpi
+
+        ;si es otro numero la segunda columna se pasa a bl
+        mov bl, array[di] ; 1, 5, ;
+        inc di
+
+        mov al, array[di]   ; 7, ;
+        cmp al, 59
+        je fingpii
+
+        jmp fingpiii
+
+
+    fingpi:
+        sub cl, 48
+
+        ;mov cx, cl
+        and cx, 0ffh
+        jmp fingpiv
+    fingpii:
+
+        sub cl, 48
+
+        mov al, bl ;al = 5
+        juntarnumeros ; bl= 30
+
+        sub al, 48
+
+        add bl, al  ; 30+5
+        ;mov cx, bl
+        mov cl, bl ; cl = 35
+        and cx, 0ffh
+        jmp fingpiv
+
+    fingpiii:
+
+        sub cl, 48
+
+        juntarnumerosCentena ;dx = 500
+
+        sub bl, 48
+        mov cl, bl ; cl = 1
+        juntarnumeros ; bl = 10
+
+        and bx, 0ffh
+        ;add dx, bl  ;500+10
+        add dx, bx  ;510
+
+        sub al, 48
+        ;add cx, al  ;510+7
+        and ax, 0ffh
+        add dx, ax  ;517
+
+
+        mov cx, dx
+        jmp fingpiv
+
+    fingpiv:
+        print msgf
+        print tab
+        jmp fingpvi
+        ;mov word ptr[destino], cx
+    fingpv:
+        print msgf2
+        print tab
+        xor cx, cx
+        ;mov word ptr[destino], cx
+    fingpvi:
+        ;
+endm
+
+buscarMenor macro
+endm
+
+mostrarPuntos macro texto
+
+    ;holaaa
+
+endm
+
+
+
+
 
 ; MACROS DEL MODO VIDEO
 
@@ -969,19 +1511,26 @@ endm
     handlerInit dw ?
     userInit db 1500 dup('$')
     ;el por si acaso
-    msg26 db 'admin', '$'
+    msg26 db 'wuxian', '$'
 
     ;entrada
-    bufferEntrada db 50 dup(00h)
+    bufferEntrada db 50 dup(00h) ;esta es la ruta
     handlerEntrada dw ?
     fileEntrada db 1500 dup('$')
     entradaInit db "prueba.ply", 00h ;FUNCIONA!!
     ;entradaInit db "prueba.play", 00h
 
+    ;puntos_ordenados
+    pointsInit db "Puntos.rep", 00h
+    handlerPoints dw ?
+    filePoints db 1500 dup('$')
+
+    ;settings de graficas
+    contadorniv db 0
+
+
     ;settings de niveles
     ; db 1-> 256, -128->127
-
-    naux db 0
 
     timen1 db 0
     tobstac1 db 0
@@ -1002,10 +1551,10 @@ endm
     pprice3 db 0;
 
     ;usuario
-    anombre db 6 dup(32);, '$'
+    anombre db 7 dup(32);, '$'
     acontrasenia db 4 dup('32');, '$'
     ;nuevo
-    nnombre db 6 dup(32);, '$'
+    nnombre db 7 dup(32);, '$'
     ncontrasenia db 4 dup(32);, '$'
 
     ; menu general (1)
@@ -1017,8 +1566,15 @@ endm
     ;menu de ingreso (2) y registro (3)
     msg4 db 09,'Ingresa tu nombre de usuario', 00h, 0Ah, '$'
     msg5 db 09,'Ingresa tu contrasenia', 00h, 0Ah, '$'
-    ;msg6 db 09,'Confirma tu contrasenia', 00h, 0Ah, '$'
     msg17 db 09,'Usuario o contrasenia incorrectos :c', 00h, 0Ah, '$'
+    
+    msg25 db 09, 'Usuario Registrado! :D', 00h, 0Ah, '$'
+    msg28 db 09, 'Tu usuario o contrasenia no coinciden :c', 00h, 0Ah, '$'
+    msg29 db 09, '1) Ingresar como usuario', 00h, 0Ah, '$'
+    msg30 db 09,'2) Ingresar como admin', 00h, 0Ah, '$'
+
+    msg35 db 09,'INGRESO', 00h, 0Ah, '$'
+    msg36 db 09,'REGISTRO', 00h, 0Ah, '$'
 
     ;sesión de usuario y admin
     msg7 db 09,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 00h, 0Ah, '$'
@@ -1047,21 +1603,69 @@ endm
     msg19 db 09, 'error al abrir', 00h, 0Ah, '$'
     msg20 db 09, 'arror al cerrar', 00h, 0Ah, '$'
     msg21 db 09, 'error al leer', 00h, 0Ah, '$'
+    msg33 db 09,'ERROR: la contraseña son solo numeros!! :c', 00h, 0Ah, '$'
+    msg34 db 09,'ERROR: el usuario ya existe :c', 00h, 0Ah, '$'    
 
+
+    ;mostrar puntos
+    msg37 db 09,'TOP 10 PUNTOS', 00h, 0Ah, '$'
     
-    msg23 db 09, '-', 00h, 0Ah, '$'
-    msg24 db 09, 59, 00h, 0Ah, '$'
-    msg25 db 09, 'Usuario Registrado! :D', 00h, 0Ah, '$'
+    ;strings donde esta todo
+    pts1 db 15 dup('$')
+    pts2 db 15 dup('$')
+    pts3 db 15 dup('$')
+    pts4 db 15 dup('$')
+    pts5 db 15 dup('$')
+    pts6 db 15 dup('$')
+    pts7 db 15 dup('$')
+    pts8 db 15 dup('$')
+    pts9 db 15 dup('$')
+    pts10 db 15 dup('$')
 
-    msg28 db 09, 'Tu usuario o contrasenia no coinciden :c', 00h, 0Ah, '$'
-    msg29 db 09, '1) Ingresar como usuario', 00h, 0Ah, '$'
-    msg30 db 09,'2) Ingresar como admin', 00h, 0Ah, '$'
+    ptsaux db 14 dup(32)
+    ptsaux2 db 14 dup(32)
 
+    ; cosos donde se guardan los puntos de pts
+
+    fpts1 dw 0
+    fpts2 dw 0
+    fpts3 dw 0
+    fpts4 dw 0
+    fpts5 dw 0
+    fpts6 dw 0
+    fpts7 dw 0
+    fpts8 dw 0
+    fpts9 dw 0
+    fpts10 dw 0
+
+    fptsaux dw 0
+    fptsaux2 dw 0
+
+    ; pa que era esto? :C
+
+    str1 db 1
+    str2 db 2
+    str3 db 3
+    str4 db 4
+    str5 db 5
+    str6 db 6
+    str7 db 7
+    str8 db 8
+    str9 db 9
+    str10 db 10
+
+    menor db 00
     
 
-    msg33 db 09,'0', 00h, 0Ah, '$'
-    msg34 db 09,'0', 00h, 0Ah, '$'
-    msg35 db 09,'0', 00h, 0Ah, '$'
+    ;graficas
+
+    ;juego
+
+    msg48 db 09,'Nivel1', 00h, 0Ah, '$'
+    msg49 db 09,'Nivel2', 00h, 0Ah, '$'
+    msg50 db 09,'Nivel3', 00h, 0Ah, '$'
+
+    msg51 db 09,'0', 00h, 0Ah, '$'
 
 
     ;extras
@@ -1069,7 +1673,9 @@ endm
     tab db 09, '$'
     msgf db ' ! ', '$' ;fin :3
     msgf2 db ' ? ', '$'; fin :c
-    msgPrueba db "hola-1234-0;"
+    msg24 db 09, 59, 00h, 0Ah, '$'  ;  ;
+    msg23 db 09, '-', 00h, 0Ah, '$'
+    naux db 0
 
 
 ; ----------------------------------- CODE ----------------------------------------------- ;
@@ -1133,6 +1739,7 @@ endm
 
         print salto
         print salto
+        print msg35
 
         print msg4
 
@@ -1167,26 +1774,38 @@ endm
 
         print salto
         print salto
+        print msg36
 
         print msg4
+
+        ;Metiendo cosas al file
+        openfile gameInit, handlerInit
 
         ; aca recibo el nombre
         getlinea nnombre
 
+        ; leyendo
+        readfile handlerInit, userInit, sizeof userInit
+        ; todo está en userinit
+
+        yausuario nnombre, userInit
+
+        print salto
         print msg5
 
         ; aca recibo la contraseña
-        getlinea ncontrasenia
+        getnumeros ncontrasenia
 
         print salto
         print nnombre
         print ncontrasenia
 
+
         ;Metiendo cosas al file
-        openfile gameInit, handlerInit
+        ;openfile gameInit, handlerInit
 
         ; user - contra ;
-        meterafile handlerInit, 5, msg26
+        ;meterafile handlerInit, 5, msg26
         meterafile handlerInit, 6, nnombre
         meterafile handlerInit, 2, msg23
         meterafile handlerInit, 4, ncontrasenia
@@ -1236,7 +1855,7 @@ endm
         je CargarJuego
 
         cmp al, 3  
-        je Salir
+        je Menu1
 
         jmp Menu4
     CargarJuego:
@@ -1295,7 +1914,27 @@ endm
 
         jmp Menu1
     Ordenamiento: 
+
+        clearscreeennormal
+
+        openfile pointsInit, handlerPoints
+        ;leyendo
+        readfile handlerPoints, filePoints, sizeof filePoints
+        ;todo está en filepoints
+
+        ;acá es que leo los puntos y los displayeo
+        meteraTops filePoints        
+
+        closefile handlerPoints
+
+        getch
+        ;si es barra espaciadora se va a las graficas
+        cmp al, 32
+        je graficas
+ 
         jmp Menu5
+    Graficas:
+        ;holi
     Salir:
         mov ah, 4ch
         int 21h
