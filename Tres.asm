@@ -1191,7 +1191,7 @@ juntarnumerosCentena macro
         ; holaaa
 endm
 
-; MACROS EN PROCESO
+;   ORDENAR
 
 meteraTopsIndi macro texto, array
 
@@ -1220,114 +1220,11 @@ meteraTopsIndi macro texto, array
 
 endm
 
-meteraTops macro texto
-
-    LOCAl Finmet, Finmet2
-   
-    xor di, di
-    xor si, si
-    xor ah, ah
-    xor ax, ax
-
-    meteraTopsIndi texto, pts1
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts2
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts3
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts4
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts5
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts6
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts7
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts8
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts9
-    cmp ax, 51
-    je Finmet
-    meteraTopsIndi texto, pts10
-    cmp ax, 51
-    je Finmet 
-
-    ; si hay más cosos todavía
-    ;mov ah, texto[di]
-    ;cmp ah, 0
-    ;je Finmet
-    ;cmp ah, '$'
-    ;je Finmet
-    ; si si siguen
-
-    Finmet:
-
-        getPuntos pts1
-        mov fpts1, cx
-        getPuntos pts2
-        mov fpts2, cx
-        getPuntos pts3
-        mov fpts3, cx
-        getPuntos pts4
-        mov fpts4, cx
-        getPuntos pts5
-        mov fpts5, cx
-        getPuntos pts6
-        mov fpts6, cx
-        getPuntos pts7
-        mov fpts7, cx
-        getPuntos pts8
-        mov fpts8, cx
-        getPuntos pts9
-        mov fpts9, cx
-        getPuntos pts10
-        mov fpts10, cx
-
-        cmp fpts5, 350
-        je wenas
-
-        jmp Finmet2
-
-        wenas:
-            print msg1
-
-
-    Finmet2:
-        ;print msgf2
-        ;print msgf2
-        ;print salto
-        ;print pts1
-        ;print tab
-        ;print pts2
-        ;print tab
-        ;print pts3
-        ;print tab
-        ;print pts4
-        ;print tab
-        ;print pts5
-        ;print tab
-        ;print pts6
-        ;print tab
-        ;print pts7
-        ;print tab
-        ;print pts8
-        ;print tab
-        ;print pts9
-        ;print tab
-        ;print pts10
-endm
-
 getPuntos macro array
     LOCAL maingp, fingpi, fingpii, fingpiii, fingpiv, fingpv, fingpvi, found     ;EL RESULTADO FINAL ESTÁ EN CX
     pushtodo
+
+    ; DE ACÁ NUNCA EN LA VIDA VOY A USAR TRES DIGITOS PERO BUEH xd
 
     xor di, di
     xor al, al
@@ -1429,7 +1326,170 @@ getPuntos macro array
         ;
 endm
 
-buscarMenor macro
+meteraTops macro texto
+
+    LOCAl Finmet, Finmet2
+   
+    xor di, di
+    xor si, si
+    xor ah, ah
+    xor ax, ax
+
+    meteraTopsIndi texto, pts1
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts2
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts3
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts4
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts5
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts6
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts7
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts8
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts9
+    cmp ax, 51
+    je Finmet
+    meteraTopsIndi texto, pts10
+    cmp ax, 51
+    je Finmet 
+
+    ; si hay más cosos todavía
+    ;mov ah, texto[di]
+    ;cmp ah, 0
+    ;je Finmet
+    ;cmp ah, '$'
+    ;je Finmet
+    ; si si siguen
+
+    Finmet:
+
+        getPuntos pts1
+        mov fpts1, cx
+        getPuntos pts2
+        mov fpts2, cx
+        getPuntos pts3
+        mov fpts3, cx
+        getPuntos pts4
+        mov fpts4, cx
+        getPuntos pts5
+        mov fpts5, cx
+        getPuntos pts6
+        mov fpts6, cx
+        getPuntos pts7
+        mov fpts7, cx
+        getPuntos pts8
+        mov fpts8, cx
+        getPuntos pts9
+        mov fpts9, cx
+        getPuntos pts10
+        mov fpts10, cx
+
+        cmp fpts5, 30
+        je wenas
+
+        jmp Finmet2
+
+        wenas:
+            print salto
+            print msg1        
+
+    Finmet2:
+
+       ; METIENDO A LOS ARRAYS QUE VAN A SERVIR EN LAS GRÁFICAS (?)
+
+         meteraArrays puntosOrdBubble, puntosOrdQuick
+
+         print puntosOrdBubble
+         ;print puntosOrdQuick
+        
+        
+
+endm
+
+meteraArrays macro arraydestino, arraydestino2
+
+    LOCAL mainMA
+
+    xor si, si
+    xor ax, ax
+
+    mov ax, fpts1
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts2
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts3
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts4
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts5
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts6
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts7
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts8
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts9
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+    inc si
+    mov ax, fpts10
+    mov arraydestino[si], ax
+    mov arraydestino2[si], ax
+
+    ;print salto
+    ;print msgf
+    ;print msgf
+    ;print salto
+endm
+
+; MACROS EN PROCESO
+
+intercambiar macro arreglo
+    ;
+endm
+
+bubbleSort macro arr
+
+    xor si, si  ;j
+    xor di, di  ;k
+
+    xor ax, ax
+    xor bx, bx
+    xor cx, cx
+    mov bsaux, 00
+
+
+
 endm
 
 mostrarPuntos macro texto
@@ -1438,10 +1498,6 @@ mostrarPuntos macro texto
 
 endm
 
-
-
-
-
 ; MACROS DEL MODO VIDEO
 
 moverCursor macro fila, columna
@@ -1449,54 +1505,210 @@ moverCursor macro fila, columna
     mov dh, fila
     mov dl, columna
     int 10h
-endm 
+endm
 
-iniciarModoVideo macro
+insertarTexto macro 
 
-    ; modo 13h
-    ;320 x 200x 256 colores
-    ; c/ pixel un byte. 00h to ffh
+    moverCursor 2, 2
 
-    mov ah, 00h
-    mov al, 18
+
+endm
+
+iniciarJuego macro 
+    ;
+    insertarTexto
+    pintarCuadrito
+    dibujarCarrito
+    dibujarMoneda
+    dibujarObstaculo
+
+    
+    
+
+    mov ah,10h
+	int 16h
+
+
+
+endm
+
+
+dibujarCarrito macro
+
+    LOCAL carritoHorizontal, findc
+
+    mov cx, carritoX ;la columna inicial de x
+    mov dx, carritoY
+
+    carritoHorizontal:        
+        pintarPixel cx, dx, 134
+        inc cx
+        mov ax, cx
+        sub ax, carritoX
+        cmp ax, carritoAncho
+        jng carritoHorizontal
+
+        mov cx, carritoX
+        inc dx
+        mov ax, dx
+        sub ax, carritoY
+        cmp ax, carritoLargo
+        jng carritoHorizontal
+
+    findc: 
+        ;
+endm
+
+dibujarMoneda macro
+
+    LOCAL moneda, findm
+
+    mov cx, monedaX ;la columna inicial de x
+    mov dx, monedaY
+
+    moneda:        
+        pintarPixel cx, dx, 0Eh
+        inc cx
+        mov ax, cx
+        sub ax, monedaX
+        cmp ax, monedasSize
+        jng moneda
+
+        mov cx, monedaX
+        inc dx
+        mov ax, dx
+        sub ax, monedaY
+        cmp ax, monedasSize
+        jng moneda
+
+    findc: 
+        ;
+
+endm
+
+dibujarObstaculo macro
+
+    Local obstaculo, findo
+
+    mov cx, obstacX
+    mov dx, obstacY
+
+    obstaculo:
+        pintarPixel cx, dx, 03
+        inc cx
+        mov ax, cx
+        sub ax, obstacX
+        cmp ax, obstacSize
+        jng obstaculo
+
+        mov cx, obstacX
+        inc dx
+        mov ax, dx
+        sub ax, obstacY
+        cmp ax, obstacSize
+        jng obstaculo
+
+
+    findo:
+        ;
+endm
+
+clearscreenvideo macro
+    
+    mov ax,13h
+	int 10h
+
+    ;mov ah, 08h  ;configuracion
+    ;mov bh, 00h  ;bckgrnd color
+    ;mov bl, 00h  ;black
+    ;int 10h
+
+endm
+
+; --------------------
+
+pintarCuadrito macro 
+
+    ; vertical
+    LOCAL uno, dos, tres, cuatro, rep2, rep3, rep4, finpc
+
+    mov cx, 180
+
+    uno:
+        pintarPixel 20,cx,4fh
+
+        cmp cx, 30
+        je dos
+    Loop uno
+
+    dos:
+        xor cx, cx
+        mov cx, 180
+
+        rep2:
+            pintarPixel 300,cx,4fh
+
+            cmp cx, 30
+            je tres
+        Loop rep2
+
+    tres:
+        xor cx, cx
+        mov cx, 300
+
+        rep3:
+            pintarPixel cx,30,4fh
+
+            cmp cx, 20
+            je cuatro
+        Loop rep3
+
+    cuatro:
+
+        xor cx, cx
+        mov cx, 300
+
+        rep4:
+            pintarPixel cx,180,4fh
+
+            cmp cx, 20
+            je finpc
+        Loop rep4
+    finpc:
+        ;
+endm
+
+pintarPixel macro x, y, color
+
+    pushtodo
+
+    mov ah,0ch	;funcion para pintar un pixel
+	mov al, color	; definimos el color
+	mov bh,0	; definimos la pagina	
+	mov dx, y	; definimos coord y0
+	mov cx, x	; definimos coord x0
+	
+	int 10h	
+
+    poptodo
+
+endm
+
+escribirCaracter macro char
+
+    pushtodo
+
+    mov ah, 0Ah
+    mov al, char
+    mov bh,0
+    mov cx, 6
     int 10h
 
+    poptodo
 
 endm
 
 
-; INSERVIBLES POR EL MOMENTO
-
-comparestrings macro txt1, txt2
-
-    LOCAL Noiwales, Iwales, Fin
-
-    push bx
-    push BL
-    push bh
-
-    MOV BX,00
-    MOV BL,txt1
-    MOV BH,txt2
-
-    CMP BL,BH
-    jne Noiwales
-
-    Noiwales: 
-        mov ax, 0
-        jmp Fin
-
-    Iwales:
-        mov ax, 1
-        jmp Fin
-    Fin:
-        pop bx
-        pop BL
-        pop bh
-
-
-
-endm
 
 ; ----------------------------------- DATA ----------------------------------------------- ;
 ; acá defino todas las variables
@@ -1506,49 +1718,46 @@ endm
     ; dd -> double word 32bits
 
     ;archivos
-    gameInit db "plis.txt", 00h
-    ;gameInit db "Dos.asm", 00h ---> abre lo que esté adentro de bin
-    handlerInit dw ?
-    userInit db 1500 dup('$')
-    ;el por si acaso
-    msg26 db 'wuxian', '$'
+        gameInit db "plis.txt", 00h
+        ;gameInit db "Dos.asm", 00h ---> abre lo que esté adentro de bin
+        handlerInit dw ?
+        userInit db 1500 dup('$')
+        ;el por si acaso
+        msg26 db 'wuxian', '$'
 
-    ;entrada
-    bufferEntrada db 50 dup(00h) ;esta es la ruta
-    handlerEntrada dw ?
-    fileEntrada db 1500 dup('$')
-    entradaInit db "prueba.ply", 00h ;FUNCIONA!!
-    ;entradaInit db "prueba.play", 00h
+        ;entrada
+        bufferEntrada db 50 dup(00h) ;esta es la ruta
+        handlerEntrada dw ?
+        fileEntrada db 1500 dup('$')
+        entradaInit db "prueba.ply", 00h ;FUNCIONA!!
+        ;entradaInit db "prueba.play", 00h
 
-    ;puntos_ordenados
-    pointsInit db "Puntos.rep", 00h
-    handlerPoints dw ?
-    filePoints db 1500 dup('$')
-
-    ;settings de graficas
-    contadorniv db 0
+        ;puntos_ordenados
+        pointsInit db "Puntos.rep", 00h
+        handlerPoints dw ?
+        filePoints db 1500 dup('$')
 
 
     ;settings de niveles
     ; db 1-> 256, -128->127
 
-    timen1 db 0
-    tobstac1 db 0
-    tprice1 db 0
-    pobstac1 db 0
-    pprice1 db 0; 2 dup('$')
+        timen1 db 0
+        tobstac1 db 0
+        tprice1 db 0
+        pobstac1 db 0
+        pprice1 db 0; 2 dup('$')
 
-    timen2 db 0
-    tobstac2 db 0
-    tprice2 db 0
-    pobstac2 db 0
-    pprice2 db 0;
+        timen2 db 0
+        tobstac2 db 0
+        tprice2 db 0
+        pobstac2 db 0
+        pprice2 db 0;
 
-    timen3 db 0
-    tobstac3 db 0
-    tprice3 db 0
-    pobstac3 db 0
-    pprice3 db 0;
+        timen3 db 0
+        tobstac3 db 0
+        tprice3 db 0
+        pobstac3 db 0
+        pprice3 db 0;
 
     ;usuario
     anombre db 7 dup(32);, '$'
@@ -1558,124 +1767,128 @@ endm
     ncontrasenia db 4 dup(32);, '$'
 
     ; menu general (1)
-    bienvenida db 09,'BiENVENIDO AL PROYECTO FINAL!! :D', 00h, 0Ah, '$'
-    msg1 db 09,'1) Ingresa', 00h, 0Ah, '$'
-	msg2 db 09,'2) Registrate', 00h, 0Ah, '$'
-	msg3 db 09,'3) Salir', 00h, 0Ah, '$'
+        bienvenida db 09,'BiENVENIDO AL PROYECTO FINAL!! :D', 00h, 0Ah, '$'
+        msg1 db 09,'1) Ingresa', 00h, 0Ah, '$'
+        msg2 db 09,'2) Registrate', 00h, 0Ah, '$'
+        msg3 db 09,'3) Salir', 00h, 0Ah, '$'
 
     ;menu de ingreso (2) y registro (3)
-    msg4 db 09,'Ingresa tu nombre de usuario', 00h, 0Ah, '$'
-    msg5 db 09,'Ingresa tu contrasenia', 00h, 0Ah, '$'
-    msg17 db 09,'Usuario o contrasenia incorrectos :c', 00h, 0Ah, '$'
-    
-    msg25 db 09, 'Usuario Registrado! :D', 00h, 0Ah, '$'
-    msg28 db 09, 'Tu usuario o contrasenia no coinciden :c', 00h, 0Ah, '$'
-    msg29 db 09, '1) Ingresar como usuario', 00h, 0Ah, '$'
-    msg30 db 09,'2) Ingresar como admin', 00h, 0Ah, '$'
+        msg4 db 09,'Ingresa tu nombre de usuario', 00h, 0Ah, '$'
+        msg5 db 09,'Ingresa tu contrasenia', 00h, 0Ah, '$'
+        msg17 db 09,'Usuario o contrasenia incorrectos :c', 00h, 0Ah, '$'
+        
+        msg25 db 09, 'Usuario Registrado! :D', 00h, 0Ah, '$'
+        msg28 db 09, 'Tu usuario o contrasenia no coinciden :c', 00h, 0Ah, '$'
+        msg29 db 09, '1) Ingresar como usuario', 00h, 0Ah, '$'
+        msg30 db 09,'2) Ingresar como admin', 00h, 0Ah, '$'
 
-    msg35 db 09,'INGRESO', 00h, 0Ah, '$'
-    msg36 db 09,'REGISTRO', 00h, 0Ah, '$'
+        msg35 db 09,'INGRESO', 00h, 0Ah, '$'
+        msg36 db 09,'REGISTRO', 00h, 0Ah, '$'
 
     ;sesión de usuario y admin
-    msg7 db 09,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 00h, 0Ah, '$'
-    msg8 db 09,'FACULTAD DE INGENIERÍA', 00h, 0Ah, '$'
-    msg9 db 09,'CIENCIAS Y SISTEMAS', 00h, 0Ah, '$'
-    msg10 db 09,'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES', 00h, 0Ah, '$'
-    msg11 db 09,'NOMBRE: YASMIN ELISA MONTERROSO ESCOBEDO', 00h, 0Ah, '$'
-    msg12 db 09,'CARNET: 201801385', 00h, 0Ah, '$'
-    msg13 db 09,'SECCION A', 00h, 0Ah, '$'
+        msg7 db 09,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 00h, 0Ah, '$'
+        msg8 db 09,'FACULTAD DE INGENIERÍA', 00h, 0Ah, '$'
+        msg9 db 09,'CIENCIAS Y SISTEMAS', 00h, 0Ah, '$'
+        msg10 db 09,'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES', 00h, 0Ah, '$'
+        msg11 db 09,'NOMBRE: YASMIN ELISA MONTERROSO ESCOBEDO', 00h, 0Ah, '$'
+        msg12 db 09,'CARNET: 201801385', 00h, 0Ah, '$'
+        msg13 db 09,'SECCION A', 00h, 0Ah, '$'
 
-    msg14 db 09, '1) Iniciar Juego', 00h, 0Ah, '$'
-    msg15 db 09,'2) Cargar Juego', 00h, 0Ah, '$'
-    msg16 db 09, '3) Salir', 00h, 0Ah, '$'
+        msg14 db 09, '1) Iniciar Juego', 00h, 0Ah, '$'
+        msg15 db 09,'2) Cargar Juego', 00h, 0Ah, '$'
+        msg16 db 09, '3) Salir', 00h, 0Ah, '$'
 
-    msg31 db 09,'1) Top 10 puntos', 00h, 0Ah, '$'
-    msg32 db 09,'2) Salir', 00h, 0Ah, '$'
+        msg31 db 09,'1) Top 10 puntos', 00h, 0Ah, '$'
+        msg32 db 09,'2) Salir', 00h, 0Ah, '$'
 
     ;cargarJuego
-    msg22 db 09, 'Ingresa la ruta de tu archivo', 00h, 0Ah, '$'
-    msg27 db 09, 'admin', '$'
+        msg22 db 09, 'Ingresa la ruta de tu archivo', 00h, 0Ah, '$'
+        msg27 db 09, 'admin', '$'
 
     ;sesion de admin
-    msg18 db 09, 'BIENVENIDO ADMINISTRADOR', 00h, 0Ah, '$'
+        msg18 db 09, 'BIENVENIDO ADMINISTRADOR', 00h, 0Ah, '$'
     
     ;errores
-    msg19 db 09, 'error al abrir', 00h, 0Ah, '$'
-    msg20 db 09, 'arror al cerrar', 00h, 0Ah, '$'
-    msg21 db 09, 'error al leer', 00h, 0Ah, '$'
-    msg33 db 09,'ERROR: la contraseña son solo numeros!! :c', 00h, 0Ah, '$'
-    msg34 db 09,'ERROR: el usuario ya existe :c', 00h, 0Ah, '$'    
+        msg19 db 09, 'error al abrir', 00h, 0Ah, '$'
+        msg20 db 09, 'arror al cerrar', 00h, 0Ah, '$'
+        msg21 db 09, 'error al leer', 00h, 0Ah, '$'
+        msg33 db 09,'ERROR: la contraseña son solo numeros!! :c', 00h, 0Ah, '$'
+        msg34 db 09,'ERROR: el usuario ya existe :c', 00h, 0Ah, '$'    
 
 
     ;mostrar puntos
-    msg37 db 09,'TOP 10 PUNTOS', 00h, 0Ah, '$'
+        msg37 db 09,'TOP 10 PUNTOS', 00h, 0Ah, '$'
     
     ;strings donde esta todo
-    pts1 db 15 dup('$')
-    pts2 db 15 dup('$')
-    pts3 db 15 dup('$')
-    pts4 db 15 dup('$')
-    pts5 db 15 dup('$')
-    pts6 db 15 dup('$')
-    pts7 db 15 dup('$')
-    pts8 db 15 dup('$')
-    pts9 db 15 dup('$')
-    pts10 db 15 dup('$')
+        pts1 db 15 dup('$')
+        pts2 db 15 dup('$')
+        pts3 db 15 dup('$')
+        pts4 db 15 dup('$')
+        pts5 db 15 dup('$')
+        pts6 db 15 dup('$')
+        pts7 db 15 dup('$')
+        pts8 db 15 dup('$')
+        pts9 db 15 dup('$')
+        pts10 db 15 dup('$')
 
-    ptsaux db 14 dup(32)
-    ptsaux2 db 14 dup(32)
+        ptsaux db 14 dup(32)
+        ptsaux2 db 14 dup(32)
 
     ; cosos donde se guardan los puntos de pts
 
-    fpts1 dw 0
-    fpts2 dw 0
-    fpts3 dw 0
-    fpts4 dw 0
-    fpts5 dw 0
-    fpts6 dw 0
-    fpts7 dw 0
-    fpts8 dw 0
-    fpts9 dw 0
-    fpts10 dw 0
+        fpts1 dw 0
+        fpts2 dw 0
+        fpts3 dw 0
+        fpts4 dw 0
+        fpts5 dw 0
+        fpts6 dw 0
+        fpts7 dw 0
+        fpts8 dw 0
+        fpts9 dw 0
+        fpts10 dw 0
 
-    fptsaux dw 0
-    fptsaux2 dw 0
+    ;ORDENAMIENTO
 
-    ; pa que era esto? :C
-
-    str1 db 1
-    str2 db 2
-    str3 db 3
-    str4 db 4
-    str5 db 5
-    str6 db 6
-    str7 db 7
-    str8 db 8
-    str9 db 9
-    str10 db 10
-
-    menor db 00
-    
+        bsaux dw 0
+        bsaux2 dw 0
+        puntosOrdBubble dw 10 dup(00h)
+        puntosOrdQuick dw 10 dup(00h)
 
     ;graficas
 
     ;juego
 
-    msg48 db 09,'Nivel1', 00h, 0Ah, '$'
-    msg49 db 09,'Nivel2', 00h, 0Ah, '$'
-    msg50 db 09,'Nivel3', 00h, 0Ah, '$'
+        carritoX dw 22
+        carritoY dw 156
+        carritoAncho dw 0Ch   ;el carrito es de 12x22
+        carritoLargo dw 16h
+        
+        monedaX dw 286
+        monedaY dw 32
+        monedasSize dw 0Ch ; las monedas son de 12x12
 
-    msg51 db 09,'0', 00h, 0Ah, '$'
+        obstacX dw 22
+        obstacY dw 32
+        obstacSize dw 0Ch ;los obstaculos son de 12x12
 
+        timeAux db 0
+        puntos dw 3
+
+        msg48 db 09,'Nivel1', 00h, 0Ah, '$'
+        msg49 db 09,'Nivel2', 00h, 0Ah, '$'
+        msg50 db 09,'Nivel3', 00h, 0Ah, '$'
+
+    
 
     ;extras
-    salto db 00h, 0Ah, '$'
-    tab db 09, '$'
-    msgf db ' ! ', '$' ;fin :3
-    msgf2 db ' ? ', '$'; fin :c
-    msg24 db 09, 59, 00h, 0Ah, '$'  ;  ;
-    msg23 db 09, '-', 00h, 0Ah, '$'
-    naux db 0
+        salto db 00h, 0Ah, '$'
+        tab db 09, '$'
+        msgf db ' ! ', '$' ;fin :3
+        msgf2 db ' ? ', '$'; fin :c
+        msg24 db 09, 59, 00h, 0Ah, '$'  ;  ;
+        msg23 db 09, '-', 00h, 0Ah, '$'
+        naux db 0
+        msg51 db 09,'0', 00h, 0Ah, '$'
 
 
 ; ----------------------------------- CODE ----------------------------------------------- ;
@@ -1882,9 +2095,32 @@ endm
         jmp Menu4
     InicioJuego:
 
-        iniciarModoVideo
+        clearscreenvideo
 
-        jmp Menu1
+        verTiempo: 
+            mov ah, 2ch ;get system time 
+            int 21h
+            ;CH = hora, CL = min, DH = sec, DL = milisec
+            cmp dh, timeAux
+            je verTiempo
+
+            mov timeAux, dh
+            clearscreenvideo
+            inc monedaY
+            inc monedaY
+            inc obstacY
+            inc obstacY
+            
+            iniciarJuego
+            
+
+            ;jmp verTiempo
+        
+        mov ax,3h
+	    int 10h     ;salgo modo video
+
+
+        jmp Menu4
     Menu5:
         print salto
         print salto
