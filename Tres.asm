@@ -1501,18 +1501,219 @@ endm
 ; MACROS DEL MODO VIDEO
 
 moverCursor macro fila, columna
+
+    pushtodo
     mov ah, 02h
     mov dh, fila
     mov dl, columna
     int 10h
+    poptodo
 endm
 
-insertarTexto macro 
+insertarTexto macro
 
-    moverCursor 2, 2
+    LOCAL unidad, decena, finiti
 
+    pushtodo
+
+    xor si, si
+    xor cx, cx
+    xor dl, dl
+
+    mov dl, 2
+    mov cx, 7
+
+    inombre:
+
+        moverCursor 2, dl
+        escribirCaracter anombre[si]
+        inc si
+        inc dl
+
+    Loop inombre
+
+    moverCursor 2, dl
+    escribirCaracter 32 ;space
+    inc dl
+    moverCursor 2, dl
+    escribirCaracter 32 ;space
+    inc dl
+    moverCursor 2, dl
+    escribirCaracter 32 ;space
+    inc dl
+
+    ;numero de nivel
+        moverCursor 2, dl
+        escribirCaracter 78;space
+        inc dl
+        moverCursor 2, dl
+        add numNivel, 48
+        escribirCaracter numNivel
+        sub numNivel, 48
+        inc dl
+
+        moverCursor 2, dl
+        escribirCaracter 32 ;space
+        inc dl
+        moverCursor 2, dl
+        escribirCaracter 32 ;space
+        inc dl
+        moverCursor 2, dl
+        escribirCaracter 32 ;space
+        inc dl
+
+    ; puntos
+
+        mov numaux1, 0
+        mov numaux2, 0
+
+        splitearNumero puntosJugador, numaux1, numaux2
+        moverCursor 2, dl
+        escribirCaracter 48 ;0
+        inc dl
+        moverCursor 2, dl
+        add numaux1, 48
+        escribirCaracter numaux1 ;numaux1
+        inc dl
+        moverCursor 2, dl
+        add numaux2, 48
+        escribirCaracter numaux2 ;numaux2
+        inc dl
+    
+
+    ;hora
+    finiti: 
+
+        moverCursor 2, dl
+        escribirCaracter 32 ;space
+        inc dl
+        moverCursor 2, dl
+        escribirCaracter 32 ;space
+        inc dl
+        moverCursor 2, dl
+        escribirCaracter 32 ;space
+        inc dl
+
+        ;min
+            
+            mov numaux1, 0
+            mov numaux2, 0
+            splitearNumero minutos, numaux1, numaux2
+
+            moverCursor 2, dl
+            add numaux1, 48
+            escribirCaracter numaux1 ;numaux1
+            inc dl
+            moverCursor 2, dl
+            add numaux2, 48
+            escribirCaracter numaux2 ;numaux2
+            inc dl    
+            moverCursor 2, dl
+            escribirCaracter 58 ;space
+            inc dl 
+        ;sec
+
+            mov numaux1, 0
+            mov numaux2, 0
+            splitearNumero segundos, numaux1, numaux2
+
+            moverCursor 2, dl
+            add numaux1, 48
+            escribirCaracter numaux1 ;numaux1
+            inc dl
+            moverCursor 2, dl
+            add numaux2, 48
+            escribirCaracter numaux2 ;numaux2
+            inc dl             
+            
+
+            moverCursor 2, dl
+            escribirCaracter 58 ;space
+            inc dl
+        ;mili
+
+            mov numaux1, 0
+            mov numaux2, 0
+            splitearNumero milisec, numaux1, numaux2
+
+            moverCursor 2, dl
+            add numaux1, 48
+            escribirCaracter numaux1 ;numaux1
+            inc dl
+            moverCursor 2, dl
+            add numaux2, 48
+            escribirCaracter numaux2 ;numaux2
+            inc dl  
+            inctiempo milisec, segundos, minutos
+              
+    poptodo
+endm
+
+inctiempo macro chiquito, grande, masgrande
+
+    LOCAL iwalit, maxx, finiti
+
+    inc chiquito
+    cmp chiquito, 60
+    je iwalit
+
+    jmp finiti
+
+    iwalit:
+        mov [chiquito], 0
+        mov chiquito, 0
+        inc grande
+
+        cmp grande, 60
+        je maxx
+
+        jmp finiti
+
+    maxx:
+        mov [grande], 0
+        mov grande, 0
+
+        inc masgrande
+    finiti:
+        ;
 
 endm
+
+splitearNumero macro numero, decena, unidad
+
+    LOCAL undigito, dosdigitos, finin
+
+    pushtodo
+
+    cmp numero, 9
+    jbe undigito
+
+    jmp dosdigitos
+
+    undigito:
+        xor al, al
+        mov decena, 0
+        mov al, numero
+        mov unidad, al
+        jmp finin
+    dosdigitos:        
+        
+        xor ah, ah
+        mov al, numero
+        mov bl, 10
+        div bl
+        mov unidad, ah
+        mov decena, al
+
+        jmp finin      
+
+    finin:
+        ;
+        poptodo
+
+endm
+
+
 
 iniciarJuego macro 
     ;
@@ -1520,13 +1721,11 @@ iniciarJuego macro
     pintarCuadrito
     dibujarCarrito
     dibujarMoneda
-    dibujarObstaculo
-
-    
+    dibujarObstaculo 
     
 
-    mov ah,10h
-	int 16h
+    ;mov ah,10h
+	;int 16h
 
 
 
@@ -1625,6 +1824,59 @@ clearscreenvideo macro
 
 endm
 
+pintarNegro macro 
+
+    LOCAL negro, finpn
+
+    mov cx, pantallaJuegoX ;la columna inicial de x
+    mov dx, pantallaJuegoY
+
+    negro:        
+        pintarPixel cx, dx, 00h
+        inc cx
+        mov ax, cx
+        sub ax, pantallaJuegoX
+        cmp ax, pantallaJAncho
+        jng negro
+
+        mov cx, pantallaJuegoX
+        inc dx
+        mov ax, dx
+        sub ax, pantallaJuegoY
+        cmp ax, pantallaJLargo
+        jng negro
+
+    finpm: 
+        ;
+
+endm
+clearText macro
+
+    LOCAL black, finct
+
+    mov cx, pantallatextoX ;la columna inicial de x
+    mov dx, pantallatextoY
+
+    black:        
+        pintarPixel cx, dx, 00h
+        inc cx
+        mov ax, cx
+        sub ax, pantallatextoX
+        cmp ax, pantallaTAncho
+        jng black
+
+        mov cx, pantallatextoX
+        inc dx
+        mov ax, dx
+        sub ax, pantallatextoY
+        cmp ax, pantallaTLargo
+        jng black
+
+    finct: 
+        ;
+
+endm
+
 ; --------------------
 
 pintarCuadrito macro 
@@ -1701,7 +1953,7 @@ escribirCaracter macro char
     mov ah, 0Ah
     mov al, char
     mov bh,0
-    mov cx, 6
+    mov cx, 1
     int 10h
 
     poptodo
@@ -1871,13 +2123,26 @@ endm
         obstacY dw 32
         obstacSize dw 0Ch ;los obstaculos son de 12x12
 
+        pantallaJuegoX dw 22
+        pantallaJuegoY dw 32
+        pantallaJAncho dw 276
+        pantallaJLargo dw 150
+
+        pantallatextoX dw 0
+        pantallatextoY dw 0
+        pantallaTAncho dw 310
+        pantallaTLargo dw 28 
+
         timeAux db 0
-        puntos dw 3
+        puntosJugador db 3
+        numNivel db 1
 
-        msg48 db 09,'Nivel1', 00h, 0Ah, '$'
-        msg49 db 09,'Nivel2', 00h, 0Ah, '$'
-        msg50 db 09,'Nivel3', 00h, 0Ah, '$'
+        numaux1 db 0
+        numaux2 db 0
 
+        segundos db 0
+	    minutos	db 0
+        milisec db 0
     
 
     ;extras
@@ -2101,20 +2366,24 @@ endm
             mov ah, 2ch ;get system time 
             int 21h
             ;CH = hora, CL = min, DH = sec, DL = milisec
-            cmp dh, timeAux
+            cmp dl, timeAux
             je verTiempo
 
-            mov timeAux, dh
-            clearscreenvideo
+            mov timeAux, dl
+            ;clearscreenvideo
+            pintarNegro
+            clearText
+
             inc monedaY
             inc monedaY
             inc obstacY
             inc obstacY
+            ;inc puntosJugador
             
             iniciarJuego
             
 
-            ;jmp verTiempo
+            jmp verTiempo
         
         mov ax,3h
 	    int 10h     ;salgo modo video
