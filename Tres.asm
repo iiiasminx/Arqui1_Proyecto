@@ -123,6 +123,20 @@ getnumeros macro arreglo
             mov arreglo[si], ah
 endm
 
+imprimirNumero macro numero
+
+    mov numaux1, 0
+    mov numaux2, 0
+
+    splitearNumero numero, numaux1, numaux2
+
+    add numaux1, 48
+    add numaux2, 48
+
+    printNum numaux1
+    printNum numaux2
+endm
+
 ;   FILES ----------------------------------
 openfile macro buffer, handler
 
@@ -389,17 +403,60 @@ endm
 
 verniveles macro    
 
-    print tnivel1
+    imprimirNumero timen1
     print salto 
-    printNum tobstac1
+    imprimirNumero tobstac1
     print salto 
-    printNum tprice1
+    imprimirNumero tprice1
     print salto
-    printNum pobstac1
+    imprimirNumero pobstac1
     print salto
-    printNum pprice1
+    imprimirNumero pprice1
     print salto 
     print salto
+    imprimirNumero timen2
+    print salto 
+    imprimirNumero tobstac2
+    print salto 
+    imprimirNumero tprice2
+    print salto
+    imprimirNumero pobstac2
+    print salto
+    imprimirNumero pprice2
+    print salto 
+    print salto
+    imprimirNumero timen3
+    print salto 
+    imprimirNumero tobstac3
+    print salto 
+    imprimirNumero tprice3
+    print salto
+    imprimirNumero pobstac3
+    print salto
+    imprimirNumero pprice3
+endm
+
+resetniveles macro
+    mov timen1, 0
+    mov timen2, 0
+    mov timen3, 0
+
+    mov tobstac1, 0
+    mov tobstac2, 0
+    mov tobstac3, 0
+
+    mov tprice1, 0
+    mov tprice2, 0
+    mov tprice3, 0
+
+    mov pobstac1, 0
+    mov pobstac2, 0
+    mov pobstac3, 0
+
+    mov pprice1, 0
+    mov pprice2, 0
+    mov pprice3, 0    
+
 endm
 
 insertLevels  macro texto
@@ -461,6 +518,7 @@ insertLevels  macro texto
             jmp tn2
 
             tn1:
+                sub timen1, 48
                 xor al, al
                 xor ah, ah
                 jmp tobstaculos1
@@ -509,6 +567,9 @@ insertLevels  macro texto
             jmp tob2
 
             tob1:
+                sub tobstac1, 48
+                xor al, al
+                xor ah, ah
                 jmp tpremio1
             tob2:
 
@@ -542,6 +603,9 @@ insertLevels  macro texto
             jmp tpr2
 
             tpr1:
+                sub tprice1, 48
+                xor al, al
+                xor ah, ah
                 jmp pobstaculos1
             tpr2:
 
@@ -575,6 +639,9 @@ insertLevels  macro texto
             jmp pob2
 
             pob1:
+                sub pobstac1, 48
+                xor al, al
+                xor ah, ah
                 jmp ppremios1
             pob2:
 
@@ -612,6 +679,9 @@ insertLevels  macro texto
             jmp ppr2
 
             ppr1:
+                sub pprice1, 48
+                xor al, al
+                xor ah, ah
                 print msgf
                 print salto
                 inc si
@@ -656,6 +726,7 @@ insertLevels  macro texto
             jmp tn22
 
             tn21:
+                sub timen2, 48
                 xor al, al
                 xor ah, ah
                 jmp tobstaculos2
@@ -704,6 +775,9 @@ insertLevels  macro texto
             jmp tob22
 
             tob21:
+                sub tobstac2, 48
+                xor al, al
+                xor ah, ah
                 jmp tpremio2
             tob22:
 
@@ -747,6 +821,9 @@ insertLevels  macro texto
             jmp tpr22
 
             tpr21:
+                sub tprice2, 48
+                xor al, al
+                xor ah, ah
                 jmp pobstaculos2
             tpr22:
 
@@ -790,6 +867,9 @@ insertLevels  macro texto
             jmp pob22
 
             pob21:
+                sub pobstac2, 48
+                xor al, al
+                xor ah, ah
                 jmp ppremios2
             pob22:
 
@@ -836,6 +916,9 @@ insertLevels  macro texto
             jmp ppr22
 
             ppr21:
+                sub pprice2, 48
+                xor al, al
+                xor ah, ah
                 print msgf
                 print salto
                 inc si
@@ -890,6 +973,7 @@ insertLevels  macro texto
             jmp tn32
 
             tn31:
+                sub timen3, 48
                 xor al, al
                 xor ah, ah
                 jmp tobstaculos3
@@ -928,6 +1012,9 @@ insertLevels  macro texto
             jmp tob32
 
             tob31:
+                sub tobstac3, 48
+                xor al, al
+                xor ah, ah
                 jmp tpremio3
             tob32:
 
@@ -961,6 +1048,9 @@ insertLevels  macro texto
             jmp tpr32
 
             tpr31:
+                sub tprice3, 48
+                xor al, al
+                xor ah, ah
                 jmp pobstaculos3
             tpr32:
 
@@ -994,6 +1084,9 @@ insertLevels  macro texto
             jmp pob32
 
             pob31:
+                sub pobstac3, 48
+                xor al, al
+                xor ah, ah
                 jmp ppremios3
             pob32:
                 xor cl, cl
@@ -1029,6 +1122,9 @@ insertLevels  macro texto
             jmp ppr32
 
             ppr31:
+                sub pprice3, 48
+                xor al, al
+                xor ah, ah
                 print msgf
                 print salto
                 inc si
@@ -1054,11 +1150,9 @@ insertLevels  macro texto
         jmp Menu4
     finn:
         print salto
-        verniveles
-        ;placeholder because yikes
-        print msgf
-        print msgf2
         print salto
+        
+        verniveles
         getch
 
 endm
@@ -1500,6 +1594,197 @@ endm
 
 ; MACROS DEL MODO VIDEO
 
+iniciarJuego macro 
+    ;
+    insertarTexto
+    pintarCuadrito
+    dibujarCarrito
+
+
+    dibujarMoneda monedaX, monedaY
+    dibujarObstaculo obstacX, obstacY
+    
+
+    ;mov ah,10h
+	;int 16h
+
+
+
+endm
+
+pausa macro 
+
+    LOCAL pausando, terminando, finfin
+
+    pushtodo
+
+    pausando:
+        mov ah, 00h
+        int 16h 
+
+        cmp al, 32
+        je terminando
+
+        cmp al, 27 ;esc pa pausar la cosa
+        jne pausando
+
+        ;si si es esc sigue de largo y todo normal
+        jmp finfin
+
+        terminando:
+            cestfini
+            mov ax,3h
+            int 10h ;salgo del modo video
+
+            jmp Menu4 ;voy al menu principal
+    finfin:
+        ;
+
+    poptodo
+
+endm
+
+cestfini macro
+
+    pushtodo
+
+    poptodo
+
+endm
+
+checarTiempo macro
+
+    LOCAL nivl1, nivl2, nivl3, finct, siguiente, fincti
+
+    pushtodo
+
+    mov al, segundospasados
+    
+    ;VER EN QUE NIVEL ESTOY
+    cmp numNivel, 1
+    je nivl1
+    cmp numnivel, 2
+    je nivl2
+    cmp numnivel, 3
+    je nivl3
+
+    jmp finct
+
+    nivl1:
+        ;escribirCaracter 200
+        cmp al, timen1
+        jae siguiente
+        jmp fincti
+    nivl2:
+        ;escribirCaracter 201
+        cmp al, timen2
+        jae siguiente
+        jmp fincti
+    nivl3:
+        ;escribirCaracter 202
+        cmp al, timen3
+        jae finct
+        jmp fincti
+    siguiente:
+        mov segundospasados, 0
+        inc numNivel
+        jmp fincti
+    finct:
+        cestfini
+        mov ax,3h
+	    int 10h ;salgo del modo video
+
+        jmp Menu4 ;voy al menu principal
+
+    fincti:
+        ;
+
+    poptodo
+
+endm
+
+moverCarrito macro
+
+    LOCAL checkMov, finmc
+
+    mov ah, 01h
+    int 16h     ;wacha si se esta presionando una key
+    jz checkMov
+
+    mov ah, 00h
+    int 16h     ; si si, miro cual
+
+    ;cmp al, 27 ;ver si es izquierda <-, 26 ->
+    ;je moverIzquierda
+    cmp al, 37 
+    je moverIzquierda
+    cmp al, 65
+    je moverIzquierda
+    cmp al, 97
+    je moverIzquierda
+
+    cmp al, 26
+    je moverDerecha
+    cmp al, 39
+    je moverDerecha
+    cmp al, 68
+    je moverDerecha
+    cmp al, 100 
+    je moverDerecha  
+
+    cmp al, 32 ;espacio pa finalizar la partida
+    je finPartida
+
+    cmp al, 27 ;esc pa pausar la cosa
+    je pausaPartida 
+
+    jmp checkMov
+
+    moverIzquierda:
+        ;escribirCaracter 3
+        mov ax, carritoVelocidad
+        sub carritoX, ax
+
+        mov ax, pantallaLimiteIzq
+        cmp carritoX, ax
+        jle carritoLimizq
+
+        jmp checkMov
+
+        carritoLimizq:
+            mov carritoX,  ax
+            jmp checkMov
+    moverDerecha:
+        ;escribirCaracter 2
+        mov ax, carritoVelocidad
+        add carritoX, ax
+
+        mov ax, pantallaLimiteDer
+        sub ax, carritoAncho
+        cmp carritoX, ax
+        jge carritoLimder
+
+        jmp checkMov
+
+        carritoLimder:
+            mov carritoX, ax
+            jmp checkMov
+    finPartida:
+        cestfini
+        mov ax,3h
+	    int 10h ;salgo del modo video
+
+        jmp Menu4 ;voy al menu principal
+
+    pausaPartida:
+
+        pausa
+
+    checkMov:
+        ;
+
+endm
+
 moverCursor macro fila, columna
 
     pushtodo
@@ -1644,16 +1929,41 @@ insertarTexto macro
             add numaux2, 48
             escribirCaracter numaux2 ;numaux2
             inc dl  
-            inctiempo milisec, segundos, minutos
+            inctiempo milisec, segundospasados, segundos, minutos
+
+        ;segundospasados
+            moverCursor 2, dl
+            escribirCaracter 32 ;space
+            inc dl
+            moverCursor 2, dl
+            escribirCaracter 32 ;space
+            inc dl
+            moverCursor 2, dl
+            escribirCaracter 32 ;space
+            inc dl
+
+            mov numaux1, 0
+            mov numaux2, 0
+            splitearNumero segundospasados, numaux1, numaux2
+
+            moverCursor 2, dl
+            add numaux1, 48
+            escribirCaracter numaux1 ;numaux1
+            inc dl
+            moverCursor 2, dl
+            add numaux2, 48
+            escribirCaracter numaux2 ;numaux2
+            inc dl 
               
     poptodo
 endm
 
-inctiempo macro chiquito, grande, masgrande
+inctiempo macro chiquito, copia, grande, masgrande
 
     LOCAL iwalit, maxx, finiti
 
     inc chiquito
+    inc copia
     cmp chiquito, 60
     je iwalit
 
@@ -1713,25 +2023,6 @@ splitearNumero macro numero, decena, unidad
 
 endm
 
-
-
-iniciarJuego macro 
-    ;
-    insertarTexto
-    pintarCuadrito
-    dibujarCarrito
-    dibujarMoneda
-    dibujarObstaculo 
-    
-
-    ;mov ah,10h
-	;int 16h
-
-
-
-endm
-
-
 dibujarCarrito macro
 
     LOCAL carritoHorizontal, findc
@@ -1758,25 +2049,25 @@ dibujarCarrito macro
         ;
 endm
 
-dibujarMoneda macro
+dibujarMoneda macro monx, mony
 
     LOCAL moneda, findm
 
-    mov cx, monedaX ;la columna inicial de x
-    mov dx, monedaY
+    mov cx, monx ;la columna inicial de x
+    mov dx, mony
 
     moneda:        
         pintarPixel cx, dx, 0Eh
         inc cx
         mov ax, cx
-        sub ax, monedaX
+        sub ax, monx
         cmp ax, monedasSize
         jng moneda
 
-        mov cx, monedaX
+        mov cx, monx
         inc dx
         mov ax, dx
-        sub ax, monedaY
+        sub ax, mony
         cmp ax, monedasSize
         jng moneda
 
@@ -1785,25 +2076,25 @@ dibujarMoneda macro
 
 endm
 
-dibujarObstaculo macro
+dibujarObstaculo macro obx, oby
 
     Local obstaculo, findo
 
-    mov cx, obstacX
-    mov dx, obstacY
+    mov cx, obx
+    mov dx, oby
 
     obstaculo:
-        pintarPixel cx, dx, 03
+        pintarPixel cx, dx, 02
         inc cx
         mov ax, cx
-        sub ax, obstacX
+        sub ax, obx
         cmp ax, obstacSize
         jng obstaculo
 
-        mov cx, obstacX
+        mov cx, obx
         inc dx
         mov ax, dx
-        sub ax, obstacY
+        sub ax, oby
         cmp ax, obstacSize
         jng obstaculo
 
@@ -1876,8 +2167,6 @@ clearText macro
         ;
 
 endm
-
-; --------------------
 
 pintarCuadrito macro 
 
@@ -1960,6 +2249,101 @@ escribirCaracter macro char
 
 endm
 
+vernivelesRapido macro
+
+    LOCAL niv1, niv2, niv3, finvnr
+
+    pushtodo
+
+    cmp numNivel, 1
+    je niv1
+    cmp numNivel, 2
+    je niv2
+    cmp numNivel, 3
+    je niv3
+
+    niv1:
+        mov numaux1, 0
+        mov numaux2, 0
+
+        splitearNumero timen1, numaux1, numaux2
+        moverCursor 2, 3
+        add numaux1, 48
+        escribirCaracter numaux1 ;numaux1
+        inc dl
+        moverCursor 2, 4
+        add numaux2, 48
+        escribirCaracter numaux2 ;numaux2
+        inc dl
+        jmp finvnr
+        
+    niv2:
+        mov numaux1, 0
+        mov numaux2, 0
+
+        splitearNumero timen2, numaux1, numaux2
+        moverCursor 2, 3
+        add numaux1, 48
+        escribirCaracter numaux1 ;numaux1
+        inc dl
+        moverCursor 2, 4
+        add numaux2, 48
+        escribirCaracter numaux2 ;numaux2
+        inc dl
+        jmp finvnr
+    niv3:
+        mov numaux1, 0
+        mov numaux2, 0
+
+        splitearNumero timen3, numaux1, numaux2
+        moverCursor 2, 3
+        add numaux1, 48
+        escribirCaracter numaux1 ;numaux1
+        inc dl
+        moverCursor 2, 4
+        add numaux2, 48
+        escribirCaracter numaux2 ;numaux2
+        inc dl
+        jmp finvnr
+    finvnr:
+        ;
+
+    poptodo
+endm
+
+resetTodo macro
+	mov carritox, 32
+	mov carritoY, 156
+    mov puntosJugador, 3
+    mov numNivel, 1
+
+    mov numaux1, 0
+    mov numaux2, 0
+
+    mov segundospasados, 0
+
+endm
+
+checarPuntoDer macro monedax, moneday
+
+    ;maxx1 > minx2 && minx1 < maxx2 && maxy1 > miny2 && miny1 < maxy2
+    ;carx+12 > monedax
+    ;carrx < monedax+12
+    ;carry+22 > moneday
+    ;carry < moneday+12
+
+
+
+endm
+
+checarPuntoIzq macro monedax, moneday
+endm
+
+checarColisionDer macro obstx, obsty
+endm
+
+checarColisionIzq macro obstx, obsty
+endm
 
 
 ; ----------------------------------- DATA ----------------------------------------------- ;
@@ -2114,6 +2498,7 @@ endm
         carritoY dw 156
         carritoAncho dw 0Ch   ;el carrito es de 12x22
         carritoLargo dw 16h
+        carritoVelocidad dw 08h
         
         monedaX dw 286
         monedaY dw 32
@@ -2127,6 +2512,9 @@ endm
         pantallaJuegoY dw 32
         pantallaJAncho dw 276
         pantallaJLargo dw 150
+        pantallaLimiteIzq dw 22
+        pantallaLimiteDer dw 286
+
 
         pantallatextoX dw 0
         pantallatextoY dw 0
@@ -2143,6 +2531,10 @@ endm
         segundos db 0
 	    minutos	db 0
         milisec db 0
+
+        segundospasados db 0 ;para la cuenta de los niveles
+        segundosparaObstaculo db 0
+        segundosparaPremio db 0
     
 
     ;extras
@@ -2349,6 +2741,7 @@ endm
         readfile handlerEntrada, fileEntrada, sizeof fileEntrada
 
         ;acá es donde separo las cosas por niveles y eso
+        resetniveles
         insertLevels fileEntrada
 
 
@@ -2361,6 +2754,7 @@ endm
     InicioJuego:
 
         clearscreenvideo
+        resetTodo
 
         verTiempo: 
             mov ah, 2ch ;get system time 
@@ -2381,6 +2775,11 @@ endm
             ;inc puntosJugador
             
             iniciarJuego
+            moverCarrito
+
+            ;vernivelesRapido
+            
+            checarTiempo
             
 
             jmp verTiempo
