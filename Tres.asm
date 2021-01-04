@@ -1594,22 +1594,32 @@ endm
 
 ; MACROS DEL MODO VIDEO
 
+; GENERALES
+
 iniciarJuego macro 
     ;
     insertarTexto
     pintarCuadrito
     dibujarCarrito
 
-
+    ;DIBUJANDO MONEDAS
     dibujarMoneda monedaX, monedaY
+    dibujarMoneda monedaX2, monedaY2
+    dibujarMoneda monedaX3, monedaY3
+    dibujarMoneda monedaX4, monedaY4
+    dibujarMoneda monedaX5, monedaY5
+    dibujarMoneda monedaX6, monedaY6
+    dibujarMoneda monedaX7, monedaY7
+
+    ;DIBUJANDO OBSTACULOS
     dibujarObstaculo obstacX, obstacY
+    dibujarObstaculo obstacX2, obstacY2
+    dibujarObstaculo obstacX3, obstacY3
+    dibujarObstaculo obstacX4, obstacY4
+    dibujarObstaculo obstacX5, obstacY5
+    dibujarObstaculo obstacX6, obstacY6
+    dibujarObstaculo obstacX7, obstacY7
     
-
-    ;mov ah,10h
-	;int 16h
-
-
-
 endm
 
 pausa macro 
@@ -1635,6 +1645,15 @@ pausa macro
             cestfini
             mov ax,3h
             int 10h ;salgo del modo video
+
+            print msg51
+            print salto
+            print msg52
+            print tab
+
+            imprimirNumero puntosJugador
+
+            getch
 
             jmp Menu4 ;voy al menu principal
     finfin:
@@ -1672,57 +1691,6 @@ cestfini macro
         meterafile handlerPoints, 1, puntoycoma
 
         closefile handlerPoints
-
-    poptodo
-
-endm
-
-checarTiempo macro
-
-    LOCAL nivl1, nivl2, nivl3, finct, siguiente, fincti
-
-    pushtodo
-
-    mov al, segundospasados
-    
-    ;VER EN QUE NIVEL ESTOY
-    cmp numNivel, 1
-    je nivl1
-    cmp numnivel, 2
-    je nivl2
-    cmp numnivel, 3
-    je nivl3
-
-    jmp finct
-
-    nivl1:
-        ;escribirCaracter 200
-        cmp al, timen1
-        jae siguiente
-        jmp fincti
-    nivl2:
-        ;escribirCaracter 201
-        cmp al, timen2
-        jae siguiente
-        jmp fincti
-    nivl3:
-        ;escribirCaracter 202
-        cmp al, timen3
-        jae finct
-        jmp fincti
-    siguiente:
-        mov segundospasados, 0
-        inc numNivel
-        jmp fincti
-    finct:
-        cestfini
-        mov ax,3h
-	    int 10h ;salgo del modo video
-
-        jmp Menu4 ;voy al menu principal
-
-    fincti:
-        ;
 
     poptodo
 
@@ -1799,6 +1767,15 @@ moverCarrito macro
         mov ax,3h
 	    int 10h ;salgo del modo video
 
+        print msg51
+        print salto
+        print msg52
+        print tab
+
+        imprimirNumero puntosJugador
+
+        getch
+
         jmp Menu4 ;voy al menu principal
 
     pausaPartida:
@@ -1808,16 +1785,6 @@ moverCarrito macro
     checkMov:
         ;
 
-endm
-
-moverCursor macro fila, columna
-
-    pushtodo
-    mov ah, 02h
-    mov dh, fila
-    mov dl, columna
-    int 10h
-    poptodo
 endm
 
 insertarTexto macro
@@ -1983,151 +1950,6 @@ insertarTexto macro
     poptodo
 endm
 
-inctiempo macro chiquito, copia, grande, masgrande
-
-    LOCAL iwalit, maxx, finiti
-
-    inc chiquito
-    inc copia
-    cmp chiquito, 60
-    je iwalit
-
-    jmp finiti
-
-    iwalit:
-        mov [chiquito], 0
-        mov chiquito, 0
-        inc grande
-
-        cmp grande, 60
-        je maxx
-
-        jmp finiti
-
-    maxx:
-        mov [grande], 0
-        mov grande, 0
-
-        inc masgrande
-    finiti:
-        ;
-
-endm
-
-splitearNumero macro numero, decena, unidad
-
-    LOCAL undigito, dosdigitos, finin
-
-    pushtodo
-
-    cmp numero, 9
-    jbe undigito
-
-    jmp dosdigitos
-
-    undigito:
-        xor al, al
-        mov decena, 0
-        mov al, numero
-        mov unidad, al
-        jmp finin
-    dosdigitos:        
-        
-        xor ah, ah
-        mov al, numero
-        mov bl, 10
-        div bl
-        mov unidad, ah
-        mov decena, al
-
-        jmp finin      
-
-    finin:
-        ;
-        poptodo
-
-endm
-
-dibujarCarrito macro
-
-    LOCAL carritoHorizontal, findc
-
-    mov cx, carritoX ;la columna inicial de x
-    mov dx, carritoY
-
-    carritoHorizontal:        
-        pintarPixel cx, dx, 134
-        inc cx
-        mov ax, cx
-        sub ax, carritoX
-        cmp ax, carritoAncho
-        jng carritoHorizontal
-
-        mov cx, carritoX
-        inc dx
-        mov ax, dx
-        sub ax, carritoY
-        cmp ax, carritoLargo
-        jng carritoHorizontal
-
-    findc: 
-        ;
-endm
-
-dibujarMoneda macro monx, mony
-
-    LOCAL moneda, findm
-
-    mov cx, monx ;la columna inicial de x
-    mov dx, mony
-
-    moneda:        
-        pintarPixel cx, dx, 0Eh
-        inc cx
-        mov ax, cx
-        sub ax, monx
-        cmp ax, monedasSize
-        jng moneda
-
-        mov cx, monx
-        inc dx
-        mov ax, dx
-        sub ax, mony
-        cmp ax, monedasSize
-        jng moneda
-
-    findc: 
-        ;
-
-endm
-
-dibujarObstaculo macro obx, oby
-
-    Local obstaculo, findo
-
-    mov cx, obx
-    mov dx, oby
-
-    obstaculo:
-        pintarPixel cx, dx, 02
-        inc cx
-        mov ax, cx
-        sub ax, obx
-        cmp ax, obstacSize
-        jng obstaculo
-
-        mov cx, obx
-        inc dx
-        mov ax, dx
-        sub ax, oby
-        cmp ax, obstacSize
-        jng obstaculo
-
-
-    findo:
-        ;
-endm
-
 clearscreenvideo macro
     
     mov ax,13h
@@ -2166,6 +1988,7 @@ pintarNegro macro
         ;
 
 endm
+
 clearText macro
 
     LOCAL black, finct
@@ -2274,6 +2097,174 @@ escribirCaracter macro char
 
 endm
 
+; VERIFICACIONES Y SEGUNDO PLANO
+
+checarTiempo macro
+
+    LOCAL nivl1, nivl2, nivl3, finct, siguiente, fincti
+
+    pushtodo
+
+    mov al, segundospasados
+    
+    ;VER EN QUE NIVEL ESTOY
+    cmp numNivel, 1
+    je nivl1
+    cmp numnivel, 2
+    je nivl2
+    cmp numnivel, 3
+    je nivl3
+
+    jmp finct
+
+    nivl1:
+        ;escribirCaracter 200
+        cmp al, timen1
+        jae siguiente
+        jmp fincti
+    nivl2:
+        ;escribirCaracter 201
+        cmp al, timen2
+        jae siguiente
+        jmp fincti
+    nivl3:
+        ;escribirCaracter 202
+        cmp al, timen3
+        jae finct
+        jmp fincti
+    siguiente:
+        mov segundospasados, 0
+        inc numNivel
+        jmp fincti
+    finct:
+        cestfini
+        mov ax,3h
+	    int 10h ;salgo del modo video
+
+        print msg51
+            print salto
+            print msg52
+            print tab
+
+            imprimirNumero puntosJugador
+
+            getch
+
+        jmp Menu4 ;voy al menu principal
+
+    fincti:
+        ;
+
+    poptodo
+
+endm
+
+
+moverCursor macro fila, columna
+
+    pushtodo
+    mov ah, 02h
+    mov dh, fila
+    mov dl, columna
+    int 10h
+    poptodo
+endm
+
+inctiempo macro chiquito, copia, grande, masgrande
+
+    LOCAL iwalit, maxx, finiti
+
+    inc chiquito
+    inc copia
+    inc segundosdePremio
+    inc segundosdeObstaculo
+    cmp chiquito, 60
+    je iwalit
+
+    jmp finiti
+
+    iwalit:
+        mov [chiquito], 0
+        mov chiquito, 0
+        inc grande
+
+        cmp grande, 60
+        je maxx
+
+        jmp finiti
+
+    maxx:
+        mov [grande], 0
+        mov grande, 0
+
+        inc masgrande
+    finiti:
+        ;
+
+endm
+
+splitearNumero macro numero, decena, unidad
+
+    LOCAL undigito, dosdigitos, finin
+
+    pushtodo
+
+    cmp numero, 9
+    jbe undigito
+
+    jmp dosdigitos
+
+    undigito:
+        xor al, al
+        mov decena, 0
+        mov al, numero
+        mov unidad, al
+        jmp finin
+    dosdigitos:        
+        
+        xor ah, ah
+        mov al, numero
+        mov bl, 10
+        div bl
+        mov unidad, ah
+        mov decena, al
+
+        jmp finin      
+
+    finin:
+        ;
+        poptodo
+
+endm
+
+dibujarCarrito macro
+
+    LOCAL carritoHorizontal, findc
+
+    mov cx, carritoX ;la columna inicial de x
+    mov dx, carritoY
+
+    carritoHorizontal:        
+        pintarPixel cx, dx, 134
+        inc cx
+        mov ax, cx
+        sub ax, carritoX
+        cmp ax, carritoAncho
+        jng carritoHorizontal
+
+        mov cx, carritoX
+        inc dx
+        mov ax, dx
+        sub ax, carritoY
+        cmp ax, carritoLargo
+        jng carritoHorizontal
+
+    findc: 
+        ;
+endm
+
+
+; NIVELES
 vernivelesRapido macro
 
     LOCAL niv1, niv2, niv3, finvnr
@@ -2346,15 +2337,91 @@ resetTodo macro
     mov numaux2, 0
 
     mov segundospasados, 0
-    mov segundosparaObstaculo, 0
-    mov segundosparaPremio, 0
+    mov segundosdeObstaculo, 0
+    mov segundosdePremio, 0
     
     mov minutos, 0
     mov segundos, 0
     mov milisec, 0
 endm
 
-checarPunto macro monedaxi, monedayi
+; COLISIONES
+
+dibujarMoneda macro monx, mony
+
+    LOCAL moneda, findm
+
+    mov cx, monx ;la columna inicial de x
+    mov dx, mony
+
+    moneda:        
+        pintarPixel cx, dx, 0Eh
+        inc cx
+        mov ax, cx
+        sub ax, monx
+        cmp ax, monedasSize
+        jng moneda
+
+        mov cx, monx
+        inc dx
+        mov ax, dx
+        sub ax, mony
+        cmp ax, monedasSize
+        jng moneda
+
+    findm: 
+        ;
+
+endm
+
+dibujarObstaculo macro obx, oby
+
+    Local obstaculo, findo
+
+    mov cx, obx
+    mov dx, oby
+
+    obstaculo:
+        pintarPixel cx, dx, 02
+        inc cx
+        mov ax, cx
+        sub ax, obx
+        cmp ax, obstacSize
+        jng obstaculo
+
+        mov cx, obx
+        inc dx
+        mov ax, dx
+        sub ax, oby
+        cmp ax, obstacSize
+        jng obstaculo
+
+
+    findo:
+        ;
+endm
+
+colisionesGeneral macro 
+
+    checarPunto monedaX, monedaY, swm1
+    checarPunto monedaX2, monedaY2, swm2
+    checarPunto monedaX3, monedaY3, swm3
+    checarPunto monedaX4, monedaY4, swm4
+    checarPunto monedaX5, monedaY5, swm5
+    checarPunto monedaX6, monedaY6, swm6
+    checarPunto monedaX7, monedaY7, swm7
+
+    checarColision obstacX, obstacY, swobs1
+    checarColision obstacX2, obstacY2, swobs2
+    checarColision obstacX3, obstacY3, swobs3
+    checarColision obstacX4, obstacY4, swobs4
+    checarColision obstacX5, obstacY5, swobs5
+    checarColision obstacX6, obstacY6, swobs6
+    checarColision obstacX7, obstacY7, swobs7
+
+endm
+
+checarPunto macro monedaxi, monedayi, codigo
 
     LOCAL izquierdo, derecho, fincp
 
@@ -2392,6 +2459,9 @@ checarPunto macro monedaxi, monedayi
         ;si sigo acá es porque si hay colision :D
         ;escribirCaracter 3
         meterPunto     
+        mov monedayi, 32
+        mov codigo, 0
+
     fincp:
         ;
 
@@ -2434,7 +2504,7 @@ meterPunto macro
 
 endm
 
-checarColision macro obstxi, obstyi
+checarColision macro obstxi, obstyi, codigo
 
     LOCAL izquierdo, derecho, fincc
 
@@ -2465,7 +2535,9 @@ checarColision macro obstxi, obstyi
         
         ;si sigo acá es porque si hay colision :D
         ;escribirCaracter 3
-        meterChoque     
+        meterChoque 
+        mov obstyi, 0
+        mov codigo, 0  
     fincc:
         ;
 
@@ -2515,10 +2587,466 @@ meterChoque macro
             mov ax,3h
             int 10h ;salgo del modo video
 
+            print msg51
+            print salto
+            print msg52
+            print tab
+
+            imprimirNumero puntosJugador
+
+            getch
+
             jmp Menu4 ;voy al menu principal
 
         finmci:
             ;
+
+    poptodo
+
+endm
+
+bajarMonedas macro
+
+    LOCAL uno, dos, tres, cuatro, cinco, seis, siete, finbm, reset1, reset2, reset3, reset4, reset5, reset6, reset7
+
+    uno:
+        cmp swm1, 0 ;si no está activado, miro la siguiente
+        je dos
+
+        ;si si esta activado... swm1, 1
+        add monedaY, 6
+
+        cmp monedaY, 156
+        jae reset1
+
+        jmp dos
+
+        reset1:
+            mov monedaY, 32     ;regreso y reseteo chif
+            mov swm1, 0
+
+    dos:
+        cmp swm2, 0 ;si no está activado, miro la siguiente
+        je tres
+
+        ;si si esta activado... swm1, 1
+        add monedaY2, 6
+
+        cmp monedaY2, 156
+        jae reset2
+
+        jmp tres
+
+        reset2:
+            mov monedaY2, 32     ;regreso y reseteo chif
+            mov swm2, 0
+    tres:
+        cmp swm3, 0 ;si no está activado, miro la siguiente
+        je cuatro
+
+        ;si si esta activado... swm1, 1
+        add monedaY3, 6
+
+        cmp monedaY3, 156
+        jae reset3
+
+        jmp cuatro
+
+        reset3:
+            mov monedaY3, 33    ;regreso y reseteo chif
+            mov swm3, 0
+    cuatro:
+        cmp swm4, 0 ;si no está activado, miro la siguiente
+        je cinco
+
+        ;si si esta activado... swm1, 1
+        add monedaY4, 6
+
+        cmp monedaY4, 156
+        jae reset4
+
+        jmp cinco
+
+        reset4:
+            mov monedaY4, 32     ;regreso y reseteo chif
+            mov swm4, 0
+    cinco:
+        cmp swm5, 0 ;si no está activado, miro la siguiente
+        je seis
+
+        ;si si esta activado... swm1, 1
+        add monedaY5, 6
+
+        cmp monedaY5, 156
+        jae reset5
+
+        jmp seis
+
+        reset5:
+            mov monedaY5, 32     ;regreso y reseteo chif
+            mov swm5, 0
+    seis:
+        cmp swm6, 0 ;si no está activado, miro la siguiente
+        je siete
+
+        ;si si esta activado... swm1, 1
+        add monedaY6, 6
+
+        cmp monedaY6, 156
+        jae reset6
+
+        jmp siete
+
+        reset6:
+            mov monedaY6, 32     ;regreso y reseteo chif
+            mov swm6, 0
+    siete:
+        cmp swm7, 0 ;si no está activado, miro la siguiente
+        je finbm
+
+        ;si si esta activado... swm1, 1
+        add monedaY7, 6
+
+        cmp monedaY7, 156
+        jae reset7
+
+        jmp finbm
+
+        reset7:
+            mov monedaY7, 32     ;regreso y reseteo chif
+            mov swm7, 0
+    finbm:
+        ;
+
+endm
+
+bajarObstaculos macro
+    LOCAL uno, dos, tres, cuatro, cinco, seis, siete, finbm, reset1, reset2, reset3, reset4, reset5, reset6, reset7
+
+    uno:
+        cmp swobs1, 0 ;si no está activado, miro la siguiente
+        je dos
+
+        ;si si esta activado... swobs1, 1
+        add obstacY, 6
+
+        cmp obstacY, 156
+        jae reset1
+
+        jmp dos
+
+        reset1:
+            mov obstacY, 32     ;regreso y reseteo chif
+            mov swobs1, 0
+
+    dos:
+        cmp swobs2, 0 ;si no está activado, miro la siguiente
+        je tres
+
+        ;si si esta activado... swobs1, 1
+        add obstacY2, 6
+
+        cmp obstacY2, 156
+        jae reset2
+
+        jmp tres
+
+        reset2:
+            mov obstacY2, 32     ;regreso y reseteo chif
+            mov swobs2, 0
+    tres:
+        cmp swobs3, 0 ;si no está activado, miro la siguiente
+        je cuatro
+
+        ;si si esta activado... swobs1, 1
+        add obstacY3, 6
+
+        cmp obstacY3, 156
+        jae reset3
+
+        jmp cuatro
+
+        reset3:
+            mov obstacY3, 33    ;regreso y reseteo chif
+            mov swobs3, 0
+    cuatro:
+        cmp swobs4, 0 ;si no está activado, miro la siguiente
+        je cinco
+
+        ;si si esta activado... swobs1, 1
+        add obstacY4, 6
+
+        cmp obstacY4, 156
+        jae reset4
+
+        jmp cinco
+
+        reset4:
+            mov obstacY4, 32     ;regreso y reseteo chif
+            mov swobs4, 0
+    cinco:
+        cmp swobs5, 0 ;si no está activado, miro la siguiente
+        je seis
+
+        ;si si esta activado... swobs1, 1
+        add obstacY5, 6
+
+        cmp obstacY5, 156
+        jae reset5
+
+        jmp seis
+
+        reset5:
+            mov obstacY5, 32     ;regreso y reseteo chif
+            mov swobs5, 0
+    seis:
+        cmp swobs6, 0 ;si no está activado, miro la siguiente
+        je siete
+
+        ;si si esta activado... swobs1, 1
+        add obstacY6, 6
+
+        cmp obstacY6, 156
+        jae reset6
+
+        jmp siete
+
+        reset6:
+            mov obstacY6, 32     ;regreso y reseteo chif
+            mov swobs6, 0
+    siete:
+        cmp swobs7, 0 ;si no está activado, miro la siguiente
+        je finbm
+
+        ;si si esta activado... swobs1, 1
+        add obstacY7, 6
+
+        cmp obstacY7, 156
+        jae reset7
+
+        jmp finbm
+
+        reset7:
+            mov obstacY7, 32     ;regreso y reseteo chif
+            mov swobs7, 0
+    finbm:
+        ;
+    
+
+endm
+
+
+; EN PROCESO X2
+
+tiempoMonedas macro
+
+    LOCAL nivl1, nivl2, nivl3, fincti, siguiente, fincti
+
+    pushtodo
+
+    mov al, segundosdePremio
+    
+    ;VER EN QUE NIVEL ESTOY
+    cmp numNivel, 1
+    je nivl1
+    cmp numnivel, 2
+    je nivl2
+    cmp numnivel, 3
+    je nivl3
+
+    jmp fincti
+
+    nivl1:
+        ;escribirCaracter 200
+        cmp al, tprice1
+        jae siguiente
+        jmp fincti
+    nivl2:
+        ;escribirCaracter 201
+        cmp al, tprice2
+        jae siguiente
+        jmp fincti
+    nivl3:
+        ;escribirCaracter 202
+        cmp al, tprice3
+        jae siguiente
+        jmp fincti
+    siguiente:
+        mov segundosdePremio, 0
+
+        switchMonedas
+
+        ;ACA ES DONDE MOV SWMS1, 1
+        jmp fincti
+    fincti:
+        ;
+
+    poptodo
+
+endm
+
+switchMonedas macro
+
+    LOCAL uno, dos, tres, cuatro, cinco, seis, siete, finbm, reset
+
+    pushtodo
+
+    mov al, indexmoneda
+
+    cmp al, 0
+    je uno
+    cmp al, 1
+    je dos
+    cmp al, 2
+    je tres
+    cmp al, 3
+    je cuatro
+    cmp al, 4
+    je cinco
+    cmp al, 5
+    je seis
+    cmp al, 6
+    je siete
+
+    jmp finbm
+
+    uno:
+        mov swm1, 1
+        inc indexmoneda
+        jmp finbm
+    dos:
+        mov swm2, 1
+        inc indexmoneda
+        jmp finbm
+    tres:
+        mov swm3, 1
+        inc indexmoneda
+        jmp finbm
+    cuatro:
+        mov swm4, 1
+        inc indexmoneda
+        jmp finbm
+    cinco: 
+        mov swm5, 1
+        inc indexmoneda
+        jmp finbm
+    seis:
+        mov swm6, 1
+        inc indexmoneda
+        jmp finbm
+    siete:
+        mov swm7, 1
+        mov indexmoneda, 0
+        jmp finbm
+    finbm:
+        ;
+
+    poptodo
+
+endm    
+
+tiempoObstac macro
+
+    LOCAL nivl1, nivl2, nivl3, fincti, siguiente, fincti
+
+    pushtodo
+
+    mov al, segundosdeObstaculo
+    
+    ;VER EN QUE NIVEL ESTOY
+    cmp numNivel, 1
+    je nivl1
+    cmp numnivel, 2
+    je nivl2
+    cmp numnivel, 3
+    je nivl3
+
+    jmp fincti
+
+    nivl1:
+        ;escribirCaracter 200
+        cmp al, tobstac1
+        jae siguiente
+        jmp fincti
+    nivl2:
+        ;escribirCaracter 201
+        cmp al, tobstac2
+        jae siguiente
+        jmp fincti
+    nivl3:
+        ;escribirCaracter 202
+        cmp al, tobstac3
+        jae siguiente
+        jmp fincti
+    siguiente:
+        mov segundosdeObstaculo, 0
+
+        switchObstaculos
+
+        ;ACA ES DONDE MOV SWMS1, 1
+        jmp fincti
+    fincti:
+        ;
+
+    poptodo
+
+endm
+
+switchObstaculos macro 
+
+    LOCAL uno, dos, tres, cuatro, cinco, seis, siete, finbm, reset
+
+    pushtodo
+
+    mov al, indexobstac
+
+    cmp al, 0
+    je uno
+    cmp al, 1
+    je dos
+    cmp al, 2
+    je tres
+    cmp al, 3
+    je cuatro
+    cmp al, 4
+    je cinco
+    cmp al, 5
+    je seis
+    cmp al, 6
+    je siete
+
+    jmp finbm
+
+    uno:
+        mov swobs1, 1
+        inc indexobstac
+        jmp finbm
+    dos:
+        mov swobs2, 1
+        inc indexobstac
+        jmp finbm
+    tres:
+        mov swobs3, 1
+        inc indexobstac
+        jmp finbm
+    cuatro:
+        mov swobs4, 1
+        inc indexobstac
+        jmp finbm
+    cinco: 
+        mov swobs5, 1
+        inc indexobstac
+        jmp finbm
+    seis:
+        mov swobs6, 1
+        inc indexobstac
+        jmp finbm
+    siete:
+        mov swobs7, 1
+        mov indexobstac, 0
+        jmp finbm
+    finbm:
+        ;
 
     poptodo
 
@@ -2681,15 +3209,7 @@ endm
         carritoY dw 156
         carritoAncho dw 0Ch   ;el carrito es de 12x22
         carritoLargo dw 16h
-        carritoVelocidad dw 10h
-        
-        monedaX dw 286
-        monedaY dw 32
-        monedasSize dw 0Ch ; las monedas son de 12x12
-
-        obstacX dw 22
-        obstacY dw 32
-        obstacSize dw 0Ch ;los obstaculos son de 12x12
+        carritoVelocidad dw 10h       
 
         pantallaJuegoX dw 22
         pantallaJuegoY dw 32
@@ -2716,8 +3236,77 @@ endm
         milisec db 0
 
         segundospasados db 0 ;para la cuenta de los niveles
-        segundosparaObstaculo db 0
-        segundosparaPremio db 0
+        segundosdeObstaculo db 0
+        segundosdePremio db 0
+
+        ; MONEDAS = 6 (?) 6427513
+
+            monedasSize dw 0Ch ; las monedas son de 12x12
+            monedaX dw 86;286
+            monedaY dw 32
+
+            monedaX2 dw 166;246
+            monedaY2 dw 32
+
+            monedaX3 dw 246;206
+            monedaY3 dw 32
+
+            monedaX4 dw 46;166
+            monedaY4 dw 32
+
+            monedaX5 dw 126;126
+            monedaY5 dw 32
+
+            monedaX6 dw 286;86
+            monedaY6 dw 32
+
+            monedaX7 dw 206;46
+            monedaY7 dw 32 
+
+
+            swm1 db 0
+            swm2 db 0
+            swm3 db 0
+            swm4 db 0
+            swm5 db 0
+            swm6 db 0
+            swm7 db 0
+
+            indexmoneda db 0
+
+        ; OBSTACULOS = 6 (?) 1374526
+
+            obstacSize dw 0Ch ;los obstaculos son de 12x12
+            obstacX dw 22;22
+            obstacY dw 32
+
+            obstacX2 dw 102;62
+            obstacY2 dw 32
+
+            obstacX3 dw 262;102
+            obstacY3 dw 32
+
+            obstacX4 dw 142;142
+            obstacY4 dw 32
+
+            obstacX5 dw 182;182
+            obstacY5 dw 32
+
+            obstacX6 dw 62;222
+            obstacY6 dw 32
+
+            obstacX7 dw 222;262
+            obstacY7 dw 32
+
+            swobs1 db 0
+            swobs2 db 0
+            swobs3 db 0
+            swobs4 db 0
+            swobs5 db 0
+            swobs6 db 0
+            swobs7 db 0      
+
+            indexobstac db 0     
     
 
     ;extras
@@ -2728,7 +3317,9 @@ endm
         msg24 db 09, 59, 00h, 0Ah, '$'  ;  ;
         msg23 db 09, '-', 00h, 0Ah, '$'
         naux db 0
-        msg51 db 09,'0', 00h, 0Ah, '$'
+        msg51 db 09,'EL JUEGO HA TERMINADO :C', 00h, 0Ah, '$'
+        msg52 db 09,'Tus puntos son: ', 00h, 0Ah, '$'
+        msg53 db 09,'0', 00h, 0Ah, '$'
 
 
 ; ----------------------------------- CODE ----------------------------------------------- ;
@@ -2938,6 +3529,10 @@ endm
 
         clearscreenvideo
         resetTodo
+        mov swm1, 1
+        ;mov swm6, 1
+        mov swobs1, 1
+
 
         verTiempo: 
             mov ah, 2ch ;get system time 
@@ -2951,21 +3546,17 @@ endm
             pintarNegro
             clearText
 
-            ;inc monedaY
-            add monedaY, 5
-            ;inc obstacY
-            add obstacY, 5
-            ;inc puntosJugador
+            bajarMonedas
+            bajarObstaculos
             
             iniciarJuego
             moverCarrito
 
             ;vernivelesRapido
-            
-            checarTiempo
-            checarPunto monedaX, monedaY
-            checarColision obstacX, obstacY
-            
+            colisionesGeneral
+            tiempoMonedas
+            tiempoObstac
+            checarTiempo  
 
             jmp verTiempo
         
