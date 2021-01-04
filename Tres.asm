@@ -185,8 +185,8 @@ readfile macro handler, array, tamanio
     int 21h
     jc Error21
 
-    ;print array
-    ;print salto
+    print array
+    print salto
 endm
 
 ;   PILA ----------------------------------
@@ -1648,6 +1648,31 @@ cestfini macro
 
     pushtodo
 
+        ;METER TODAS LAS COSAS AL ARCHIVO DE HISTORIAL
+        openfile pointsInit, handlerPoints
+
+        meterafile handlerPoints, 7, anombre
+        meterafile handlerPoints, 1, coma
+        add numNivel, 48
+        meterafile handlerPoints, 1, numNivel
+        sub numNivel, 48
+        meterafile handlerPoints, 1, mas
+
+        mov numaux1, 0
+        mov numaux2, 0
+
+        splitearNumero puntosJugador, numaux1, numaux2
+
+        add numaux1, 48
+        add numaux2, 48
+
+        meterafile handlerPoints, 1, numaux1
+        meterafile handlerPoints, 1, numaux2
+
+        meterafile handlerPoints, 1, puntoycoma
+
+        closefile handlerPoints
+
     poptodo
 
 endm
@@ -2321,28 +2346,182 @@ resetTodo macro
     mov numaux2, 0
 
     mov segundospasados, 0
-
+    mov segundosparaObstaculo, 0
+    mov segundosparaPremio, 0
+    
+    mov minutos, 0
+    mov segundos, 0
+    mov milisec, 0
 endm
 
-checarPuntoDer macro monedax, moneday
+checarPunto macro monedaxi, monedayi
+
+    LOCAL izquierdo, derecho, fincp
+
+    pushtodo
 
     ;maxx1 > minx2 && minx1 < maxx2 && maxy1 > miny2 && miny1 < maxy2
     ;carx+12 > monedax
     ;carrx < monedax+12
     ;carry+22 > moneday
-    ;carry < moneday+12
+    ;carry < moneday+
 
+    derecho:
 
+        mov ax, carritoX
+        add ax, carritoAncho    ;maxCarrx > monedax
+        cmp ax, monedaxi
+		jng fincp
+
+        mov ax, monedaxi
+        add ax, monedasSize
+        cmp carritox, ax
+        jnl fincp     
+
+        mov ax, carritoY
+        add ax, carritoLargo
+        cmp ax, monedayi
+        jng fincp
+
+        mov ax, monedayi
+        add ax, monedasSize
+        cmp carritoY, ax
+        jnl fincp
+        
+        
+        ;si sigo acá es porque si hay colision :D
+        ;escribirCaracter 3
+        meterPunto     
+    fincp:
+        ;
+
+    poptodo
+endm
+
+meterPunto macro
+
+    LOCAL nivl1, nivl2, nivl3, finmp
+
+    pushtodo
+
+    
+    ;VER EN QUE NIVEL ESTOY
+    cmp numNivel, 1
+    je nivl1
+    cmp numnivel, 2
+    je nivl2
+    cmp numnivel, 3
+    je nivl3
+
+    jmp finmp
+
+    nivl1:
+        mov bl, pprice1
+        add puntosJugador, bl
+        jmp finmp
+    nivl2:
+        mov bl, pprice2
+        add puntosJugador, bl
+        jmp finmp
+    nivl3:
+        mov bl, pprice2
+        add puntosJugador, bl
+        jmp finmp
+    finmp:
+        ;
+
+    poptodo
 
 endm
 
-checarPuntoIzq macro monedax, moneday
+checarColision macro obstxi, obstyi
+
+    LOCAL izquierdo, derecho, fincc
+
+    pushtodo
+
+    derecho:
+
+        mov ax, carritoX
+        add ax, carritoAncho    ;maxCarrx > monedax
+        cmp ax, obstxi
+		jng fincc
+
+        mov ax, obstxi
+        add ax, obstacSize
+        cmp carritox, ax
+        jnl fincc     
+
+        mov ax, carritoY
+        add ax, carritoLargo
+        cmp ax, obstyi
+        jng fincc
+
+        mov ax, obstyi
+        add ax, obstacSize
+        cmp carritoY, ax
+        jnl fincc
+        
+        
+        ;si sigo acá es porque si hay colision :D
+        ;escribirCaracter 3
+        meterChoque     
+    fincc:
+        ;
+
+    poptodo
+
 endm
 
-checarColisionDer macro obstx, obsty
-endm
+meterChoque macro
 
-checarColisionIzq macro obstx, obsty
+    LOCAL nivl1, nivl2, nivl3, finmc, ups, finmci
+
+    pushtodo
+
+    
+    ;VER EN QUE NIVEL ESTOY
+    cmp numNivel, 1
+    je nivl1
+    cmp numnivel, 2
+    je nivl2
+    cmp numnivel, 3
+    je nivl3
+
+    jmp finmc
+
+    nivl1:
+        mov bl, pobstac1
+        sub puntosJugador, bl
+        jmp finmc
+    nivl2:
+        mov bl, pobstac2
+        sub puntosJugador, bl
+        jmp finmc
+    nivl3:
+        mov bl, pobstac3
+        sub puntosJugador, bl
+        jmp finmc
+    finmc:
+        ; checar si es menor a 0
+
+        cmp puntosJugador, 0
+        jle ups
+
+        jmp finmci
+
+        ups:
+            cestfini
+            mov ax,3h
+            int 10h ;salgo del modo video
+
+            jmp Menu4 ;voy al menu principal
+
+        finmci:
+            ;
+
+    poptodo
+
 endm
 
 
@@ -2369,9 +2548,13 @@ endm
         ;entradaInit db "prueba.play", 00h
 
         ;puntos_ordenados
-        pointsInit db "Puntos.rep", 00h
+        ;pointsInit db "Puntos.rep", 00h
+        pointsInit db "hist.rep", 00h
         handlerPoints dw ?
         filePoints db 1500 dup('$')
+        coma db ',', '$'
+        mas db '+', '$'
+        puntoycoma db 59, '$'
 
 
     ;settings de niveles
@@ -2498,7 +2681,7 @@ endm
         carritoY dw 156
         carritoAncho dw 0Ch   ;el carrito es de 12x22
         carritoLargo dw 16h
-        carritoVelocidad dw 08h
+        carritoVelocidad dw 10h
         
         monedaX dw 286
         monedaY dw 32
@@ -2513,7 +2696,7 @@ endm
         pantallaJAncho dw 276
         pantallaJLargo dw 150
         pantallaLimiteIzq dw 22
-        pantallaLimiteDer dw 286
+        pantallaLimiteDer dw 290
 
 
         pantallatextoX dw 0
@@ -2676,7 +2859,7 @@ endm
 
         ; user - contra ;
         ;meterafile handlerInit, 5, msg26
-        meterafile handlerInit, 6, nnombre
+        meterafile handlerInit, 7, nnombre
         meterafile handlerInit, 2, msg23
         meterafile handlerInit, 4, ncontrasenia
         meterafile handlerInit, 2, msg24
@@ -2768,10 +2951,10 @@ endm
             pintarNegro
             clearText
 
-            inc monedaY
-            inc monedaY
-            inc obstacY
-            inc obstacY
+            ;inc monedaY
+            add monedaY, 5
+            ;inc obstacY
+            add obstacY, 5
             ;inc puntosJugador
             
             iniciarJuego
@@ -2780,6 +2963,8 @@ endm
             ;vernivelesRapido
             
             checarTiempo
+            checarPunto monedaX, monedaY
+            checarColision obstacX, obstacY
             
 
             jmp verTiempo
